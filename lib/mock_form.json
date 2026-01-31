@@ -11,6 +11,6 @@
         "title": "PER PWR EXT-SURG",
         "description": "Extension Cable 25ft. and Surge Protector",
         "equipment_images": ["/25ft_extension_cable.jpg", "/surge_protector.jpg"],
-        "equiment_labels": ["25ft Extension Cable", "Surge Protector"]
+        "equipment_labels": ["25ft Extension Cable", "Surge Protector"]
     }
 ]
