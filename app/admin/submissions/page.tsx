@@ -3,9 +3,8 @@
  import { SearchBar } from "@/components/ui/HeaderSearch";
  
  export default function Page() {
-    console.log(mockSubmissions);
     return (
-        SearchBar("Submissions")
+        <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>}></SearchBar>
     );
 
     // title
