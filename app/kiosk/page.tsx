@@ -1,7 +1,7 @@
 import Navbar from "@/components/navbar";
 
 export default function Page() {
-    return <div className="w-[100svw]">
+    return <div>
         <Navbar page="kiosk"/>
     </div>
 }

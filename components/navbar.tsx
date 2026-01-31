@@ -10,37 +10,34 @@ export default function Navbar({ page }: NavbarProps){
     let pageTitle;
     if (page === "admin") {
         pageTitle = "Admin";
-    } else {
+    } else if (page === "kiosk") {
         pageTitle = "Kiosk"
     }
 
     return(
-        <div className = "flex flex-row justify-between items-center h-[104px] w-full text-white px-[32px] bg-[#222D65]">
-            
-            <div className = "flex flex-row flex-start text-right items-center h-[48px] font-bold text-2xl gap-[100px]">
-                DMC {pageTitle}
+        <div className = "flex justify-center items-center h-[86px] text-white bg-[#222D65] w-full shadow-lg">
+            <div className="w-[95%] flex flex-row justify-between items-center">
+                <div className = "flex flex-row flex-start text-right items-center h-[48px] font-bold text-3xl gap-[100px]">
+                    DMC {pageTitle}
+                </div>
+
+                <div className ="flex flex-row items-center gap-[90px]">
+                    {page === "admin" && (
+                        <>
+                            <Link href = {"admin/submissions"}>
+                                <button>Submissions</button>
+                            </Link>
+
+                            <Link href = {"admin/forms"}>
+                                <button>Forms</button>
+                            </Link>
+                        </>
+                    )}
+                    <Link href = {"/"}>
+                        <Button style={{backgroundColor: "#B20000"}}>Logout</Button>
+                    </Link>
+                </div>
             </div>
-
-            
-
-            <div className ="flex flex-row items-center h-[48px] gap-[60px]">
-                {page === "admin" && (
-                    <>
-                        <Link href = {"admin/submissions"}>
-                            <button>Submissions</button>
-                        </Link>
-
-                        <Link href = {"admin/forms"}>
-                            <button>Forms</button>
-                        </Link>
-                    </>
-                )}
-                <Link href = {"/"}>
-                     <Button style={{backgroundColor: "#B20000"}}>Logout</Button>
-                </Link>
-            </div>
-
-            
   
         </div>
         
