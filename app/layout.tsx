@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: "The fastest way to build apps with Next.js and Supabase",
 };
 
-const dmsans = DM_Sans({ subsets:["latin"] });
+const dmSans = DM_Sans({ subsets:["latin"] });
 
 export default function RootLayout({
   children,
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${dmsans.className} antialiased`}>
+      <body className={`${dmSans.className} antialiased h-[100svh] w-[100svw]`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

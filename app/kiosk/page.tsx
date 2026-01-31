@@ -1,5 +1,6 @@
 'use client'
 
+import Navbar from "@/components/navbar";
 import {
   Combobox,
   ComboboxCollection,
@@ -14,11 +15,6 @@ import {
 } from "@/components/ui/combobox"
 
 const styles = {
-
-    container: {
-      height: "100svh"
-    },
-
     topSection:{
         display: "flex",
         justifyContent: "center",
@@ -138,7 +134,8 @@ export function ComboboxWithGroupsAndSeparator() {
 
 export default function Page() {
 return (
-  <div style={styles.container}>
+  <div>
+    <Navbar page="kiosk" />
     <div style={styles.topSection}>
         <div style={styles.mainText}>
             <p style={styles.welcomeText}>Welcome to the DMC!</p>
