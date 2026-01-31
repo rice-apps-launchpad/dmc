@@ -15,6 +15,9 @@ import {
 } from "@/components/ui/combobox"
 
 const styles = {
+    container: {
+      flex: 1
+    },
     topSection:{
         display: "flex",
         justifyContent: "center",
@@ -133,21 +136,23 @@ export function ComboboxWithGroupsAndSeparator() {
 }
 
 export default function Page() {
-return (
-  <div>
-    <Navbar page="kiosk" />
-    <div style={styles.topSection}>
-        <div style={styles.mainText}>
-            <p style={styles.welcomeText}>Welcome to the DMC!</p>
-            <p style={styles.formText}>Please select a form to complete.</p>
+  return (
+    <>
+      <Navbar page="kiosk" />
+      <div style={styles.container}>
+        <div style={styles.topSection}>
+          <div style={styles.mainText}>
+              <p style={styles.welcomeText}>Welcome to the DMC!</p>
+              <p style={styles.formText}>Please select a form to complete.</p>
+          </div>
+          <div>
+              {<ComboboxWithGroupsAndSeparator />}
+          </div>
         </div>
-        <div>
-            {<ComboboxWithGroupsAndSeparator />}
+        <div style={styles.bottomSection}>
+          <button style={styles.button}>Next</button>
         </div>
-    </div>
-    <div style={styles.bottomSection}>
-      <button style={styles.button}>Next</button>
-    </div>
-    </div>
-    )
+      </div>
+    </>
+  )
 }

@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${dmSans.className} antialiased h-[100svh] w-[100svw]`}>
+      <body className={`${dmSans.className} antialiased h-[100svh] w-[100svw] flex flex-col`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
