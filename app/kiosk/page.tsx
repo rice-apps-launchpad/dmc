@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react';
 import Navbar from "@/components/navbar";
 import {
   Combobox,
@@ -12,7 +13,8 @@ import {
   ComboboxLabel,
   ComboboxList,
   ComboboxSeparator,
-} from "@/components/ui/combobox"
+} from "@/components/ui/combobox";
+import data from "@/lib/mock_form.json";
 
 const styles = {
     container: {
@@ -109,9 +111,35 @@ const timezones = [
     ],
   },
 ] as const
+
+const titles = [
+  {
+    value: "Cables and Adapters",
+    items: data
+  }
+]
+
+console.log(data);
+
 export function ComboboxWithGroupsAndSeparator() {
+  const [title, setTitle] = useState<{
+        id: number;
+        title: string;
+        description: string;
+        equipment_images: string[];
+        equipment_labels: string[];
+    } | null>(null);
+
+  console.log(title);
+
   return (
-    <Combobox items={timezones}>
+    <Combobox items={titles} itemToStringLabel={(title: {
+        id: number;
+        title: string;
+        description: string;
+        equipment_images: string[];
+        equipment_labels: string[];
+    }) => title.description} value={title} onValueChange={setTitle}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
         <ComboboxEmpty>No timezones found.</ComboboxEmpty>
@@ -120,11 +148,12 @@ export function ComboboxWithGroupsAndSeparator() {
             <ComboboxGroup key={group.value} items={group.items}>
               <ComboboxLabel>{group.value}</ComboboxLabel>
               <ComboboxCollection>
-                {(item) => (
-                  <ComboboxItem key={item} value={item}>
-                    {item}
+                {(title) => {
+                  // console.log(item.description)
+                  return <ComboboxItem key={title.id} value={title}>
+                    {title.description}
                   </ComboboxItem>
-                )}
+                }}
               </ComboboxCollection>
               {index < timezones.length - 1 && <ComboboxSeparator />}
             </ComboboxGroup>
