@@ -75,43 +75,6 @@ const styles = {
     
 } as const;
 
-
-const timezones = [
-  {
-    value: "Americas",
-    items: [
-      "(GMT-5) New York",
-      "(GMT-8) Los Angeles",
-      "(GMT-6) Chicago",
-      "(GMT-5) Toronto",
-      "(GMT-8) Vancouver",
-      "(GMT-3) São Paulo",
-    ],
-  },
-  {
-    value: "Europe",
-    items: [
-      "(GMT+0) London",
-      "(GMT+1) Paris",
-      "(GMT+1) Berlin",
-      "(GMT+1) Rome",
-      "(GMT+1) Madrid",
-      "(GMT+1) Amsterdam",
-    ],
-  },
-  {
-    value: "Asia/Pacific",
-    items: [
-      "(GMT+9) Tokyo",
-      "(GMT+8) Shanghai",
-      "(GMT+8) Singapore",
-      "(GMT+4) Dubai",
-      "(GMT+11) Sydney",
-      "(GMT+9) Seoul",
-    ],
-  },
-] as const
-
 const titles = [
   {
     value: "Cables and Adapters",
@@ -119,43 +82,23 @@ const titles = [
   }
 ]
 
-console.log(data);
-
 export function ComboboxWithGroupsAndSeparator() {
-  const [title, setTitle] = useState<{
-        id: number;
-        title: string;
-        description: string;
-        equipment_images: string[];
-        equipment_labels: string[];
-    } | null>(null);
-
-  console.log(title);
-
   return (
-    <Combobox items={titles} itemToStringLabel={(title: {
-        id: number;
-        title: string;
-        description: string;
-        equipment_images: string[];
-        equipment_labels: string[];
-    }) => title.description} value={title} onValueChange={setTitle}>
+    <Combobox items={titles} itemToStringLabel={(title: typeof data[0]) => title.description}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
         <ComboboxEmpty>No timezones found.</ComboboxEmpty>
         <ComboboxList>
-          {(group, index) => (
+          {(group) => (
             <ComboboxGroup key={group.value} items={group.items}>
               <ComboboxLabel>{group.value}</ComboboxLabel>
               <ComboboxCollection>
-                {(title) => {
-                  // console.log(item.description)
-                  return <ComboboxItem key={title.id} value={title}>
+                {(title) => (
+                  <ComboboxItem key={title.id} value={title}>
                     {title.description}
                   </ComboboxItem>
-                }}
+                )}
               </ComboboxCollection>
-              {index < timezones.length - 1 && <ComboboxSeparator />}
             </ComboboxGroup>
           )}
         </ComboboxList>
