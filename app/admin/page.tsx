@@ -1,3 +1,7 @@
+import Navbar from "@/components/navbar";
+
 export default function Page() {
-    return <h1>Hello, world!</h1>
+    return <div>
+        <Navbar page="admin"/>
+    </div>
 }
