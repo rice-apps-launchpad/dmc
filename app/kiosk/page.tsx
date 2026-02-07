@@ -137,8 +137,6 @@ export function ComboboxWithGroupsAndSeparator() {
 
 export default function Page() {
   return (
-    <>
-      <Navbar page="kiosk" />
       <div style={styles.container}>
         <div style={styles.topSection}>
           <div style={styles.mainText}>
@@ -153,6 +151,5 @@ export default function Page() {
           <button style={styles.button}>Next</button>
         </div>
       </div>
-    </>
   )
 }
