@@ -1,6 +1,6 @@
 "use client"
 
-import mock_submissions from "@/lib/mock_submissions.json"
+import mockSubmissions from "@/lib/mock_submissions.json"
 // collapsible component
 import {
   Collapsible,
@@ -8,6 +8,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { ChevronDown, Play } from "lucide-react"
+import { SearchBar } from "@/components/ui/HeaderSearch";
+
 
 function TableRow({ children }: { children: React.ReactNode }) {
     return (
@@ -21,7 +23,7 @@ const rowLayout = "grid grid-cols-5 items-center justify-items-center gap-x-6 px
 
 export default function Page() {
     // group submissions by netid - CHANGE LATER FOR OTHER GROUPS
-    const groupedByNetID = mock_submissions.reduce((acc: Record<string, any[]>, submission: any) => {
+    const groupedByNetID = mockSubmissions.reduce((acc: Record<string, any[]>, submission: any) => {
         const netid = submission.netid;
         if (!acc[netid]) {
             acc[netid] = [];
@@ -31,6 +33,7 @@ export default function Page() {
     }, {});
     return (
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
+            <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>}></SearchBar>
             <div className="space-y-4">
                 { /* submissions header table */ }
                 <div className={`${rowLayout} rounded-xl bg-[#222d65] text-[#e7f0ff] px-4 py-5 mb-4 text-sm font-medium`}>
