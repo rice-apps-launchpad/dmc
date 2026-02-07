@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -13,11 +13,7 @@ export const metadata: Metadata = {
   description: "The fastest way to build apps with Next.js and Supabase",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
-  subsets: ["latin"],
-});
+const dmSans = DM_Sans({ subsets:["latin"] });
 
 export default function RootLayout({
   children,
@@ -26,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased h-[100svh] w-[100svw]`}>
+      <body className={`${dmSans.className} antialiased h-[100svh] w-[100svw] flex flex-col`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
