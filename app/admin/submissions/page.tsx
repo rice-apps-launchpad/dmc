@@ -43,7 +43,7 @@ export default function Page() {
                         <Collapsible key={netid}>
                             <CollapsibleTrigger className={`${rowLayout} w-full group bg-[#e7f0ff] rounded-xl hover:bg-blue-100`}>
                                 <div className="flex items-center justify-self-start px-5 gap-2 font-semibold text-[#222d65]">
-                                    <Play className="h-3 w-3 fill-[#222d65] -rotate-90 group-data-[state=open]:rotate-90 transition-none"/>
+                                    <Play className="h-3 w-3 fill-[#222d65] rotate-90 group-data-[state=open]:-rotate-90 transition-none"/>
                                     {netid}
                                 </div>
                             </CollapsibleTrigger>
