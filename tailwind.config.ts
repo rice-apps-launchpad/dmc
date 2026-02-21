@@ -10,6 +10,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'dm-sans': ['DM Sans', 'sans-serif'],
+        'inter': ['Inter', 'sans-serif']
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
