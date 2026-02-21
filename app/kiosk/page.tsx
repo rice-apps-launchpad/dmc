@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react';
 import Navbar from "@/components/navbar";
 import {
   Combobox,
@@ -12,7 +11,6 @@ import {
   ComboboxItem,
   ComboboxLabel,
   ComboboxList,
-  ComboboxSeparator,
 } from "@/components/ui/combobox";
 import data from "@/lib/mock_form.json";
 
