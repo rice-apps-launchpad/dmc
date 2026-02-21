@@ -24,11 +24,11 @@ export default function Navbar({ page }: NavbarProps){
                 <div className ="flex flex-row items-center gap-[90px]">
                     {page === "admin" && (
                         <>
-                            <Link href = {"admin/submissions"}>
+                            <Link href = {"/admin/submissions"}>
                                 <button>Submissions</button>
                             </Link>
 
-                            <Link href = {"admin/forms"}>
+                            <Link href = {"/admin/forms"}>
                                 <button>Forms</button>
                             </Link>
                         </>
