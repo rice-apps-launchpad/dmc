@@ -1,6 +1,6 @@
  import * as React from "react"
  import mockSubmissions from "@/lib/mock_submissions.json";
- import { SearchBar } from "@/components/ui/HeaderSearch";
+ import { SearchBar } from "@/components/HeaderSearch";
  
  export default function Page() {
     return (

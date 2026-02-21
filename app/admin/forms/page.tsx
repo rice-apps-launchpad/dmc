@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Link from "next/link";
-import { SearchBar } from "@/components/ui/HeaderSearch";
+import { SearchBar } from "@/components/HeaderSearch";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/navbar";
 import mockData from '@/lib/mock_form.json';
