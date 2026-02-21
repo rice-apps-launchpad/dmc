@@ -1,12 +1,11 @@
-//import Navbar from "@/components/navbar";
 'use client';
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input";
-//import {useState, useEffect} from 'react';
 import { text } from "stream/consumers";
 import { ChangeEvent, useState } from 'react';
 import Image from 'next/image';
+import { useRef } from 'react';
 
 
 const inputstyles = {
@@ -27,26 +26,17 @@ const EquipmentContainer = {
         padding: "8px",
         border: "solid 2px black",
         borderRadius: "8px",
-        width: "100%"
+        width: "100%",
+        gap: "8px",
     }
 
 type Equipment = {
-    name: string;
-    image?: string;
+    name?: string;
+    image: string;
 }
 
 type EquipmentProps = Equipment;
 
-function EquipmentComponent(props: EquipmentProps) {
-    return (
-        <div className = "EquipmentComponent">
-            <h1>{props.name}</h1>
-            {props.image && (
-                <img src={props.image} alt={props.name} style={{ width: "300px", height: "300px" }} />
-            
-            )}</div>
-    )
-}
 
 
 export default function Page() {
@@ -55,40 +45,77 @@ export default function Page() {
     let [equipmentImage, setImage] = useState('');
     let [equipList, setEquipList]= useState<Array<Equipment>>([]);
     let [isVisible, setVisible] = useState(false);
+    let fileInputRef = useRef<HTMLInputElement>(null);
+    let [selectedFile, setSelectedFile] = useState<File | null>(null)
+    let [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    
+    function EquipmentComponent(props: EquipmentProps) {
 
-    function handleAddEquipmentNameChange(e: ChangeEvent<HTMLInputElement>) {
-        setAdd(addEquipmentName = e.target.value);
+        function handleAddEquipmentNameChange(e: ChangeEvent<HTMLInputElement>) {
+            setAdd(addEquipmentName = e.target.value);
+        }
+
+        return (
+            <div className = "EquipmentComponent">
+                <Button style={{width: "20px", height: "5px", borderRadius: "50%", backgroundColor: "#ff7949", border: "2px solid #222D65", color: "#222D65", display: "flex", alignItems: "center", justifyContent: "center"}} onClick ={handleDelete}>X</Button>
+    
+                <h1>{props.name}</h1>
+                {props.image && (
+                    <img src={props.image} alt={props.name} style={{ width: "300px", height: "300px", padding: "8px", border: "2px solid #222D65", }} />
+                )}
+                
+                <input className ="font-medium border-2 border-[#222D65] p-2 rounded-lg align-center" placeholder="Equipment Label" value={addEquipmentName} onChange={handleAddEquipmentNameChange}  />
+                
+            </div>
+        )
     }
 
+
+    const openFilePicker = () => {
+    
+        fileInputRef.current?.click()
+
+    };
+
+    const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+       const file = e.target.files?.[0]
+    
+        if (file) {
+            const previewUrl = URL.createObjectURL(file);
+            setEquipList(prev => [...prev, { image: previewUrl }])
+            setVisible(true);
+        }
+    }
+
+    function handleDelete(){
+        setEquipList(equipList => equipList.slice(0, -1));
+    }
+    
     function handleEquipmentImageChange(e: ChangeEvent<HTMLInputElement>) {
         setImage(equipmentImage = e.target.value);
     }
 
-    function handleAddEquip() {
+    function handleSubmitEquipment() {
+        if(!addEquipmentName.trim()) return;
         const newEquip = {
             name: addEquipmentName,
             image: equipmentImage
         };
-        setVisible(!isVisible);
 
         setEquipList(equipList => [...equipList, newEquip])
-        //hobbyList.push(newHobby);
         setAdd('');
         setImage('');
+        setVisible(false);
     }
-    function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0];
-        if (file) {
-            const previewUrl = URL.createObjectURL(file);
-            setImage(previewUrl);
-        }
-    }
+
+
     return(
-        <div className = "flex flex-col h-full p-8 justify-between gap-8">
+        <div className = "flex flex-col h-full p-8 justify-between gap-10">
             <div>
                 {/*title*/}
                 <h1 className="text-2xl font-bold mb-4 text-[#474747]">New Form</h1>
             </div>
+
             <div className="flex flex-row gap-8">
                 <div className = "flex flex-col flex-1">
                     {/*form*/}
@@ -101,40 +128,42 @@ export default function Page() {
                     <Input style = {inputstyles} placeholder="Add your description here."/>
                 </div>
             </div>
-            <div className = "flex flex-col gap-8 padding-8">
-                    {/*add equipment*/}
-                    <h3 className ="text-lg font-bold font-medium mb-2 text-[#222D65]">Add Equipment</h3>
-                
-                <div className = "flex flex-row gap-8">
-                    {/*add new equipment button thing*/}
-                    {isVisible && (
-                        <div className = "flex flex-col gap-4">
-                            <input style={inputstyles} placeholder="Equipment Label" value={addEquipmentName} onChange={handleAddEquipmentNameChange}  />
-                                {/* input style={inputstyles} placeholder="Equipment Image" value={equipmentImage} onChange={handleEquipmentImageChange} /> */}
-                            <Field>
-                                <Input type="file" style={{border: "2px dashed #B0B0B0", padding: "8px 12px", borderRadius:"10px", height:"50px", alignItems: "center"}} onChange={handleFileChange}/>
-                            </Field>
-                        </div>
-                    )}
-                   
-                    <div className="flex w-full flex-row items-center gap-4">
-                        
-                            {
-                            equipList .filter((item) => item.name && item.name.trim() !== "") .map((equipment, idx) =>  <div key={idx} className="border-2 border-[#222D65] p-2 rounded-lg"> <EquipmentComponent key={idx} name={equipment.name} image={equipment.image }/> </div>)
-                            }
-                        
-                        <button style={{border: "2px dashed #B0B0B0", padding: "8px 12px", borderRadius:"10px", height:"100px", alignItems: "center"}} onClick={handleAddEquip}>
-                            <Image src = "/formkit_add.png" alt="icon" height = {20} width ={20}/>{isVisible? "Save Equipment" : "Add Equipment"}</button>
-                    </div>
-                    
-                </div>
 
-        
-                <div className = "flex justify-end mt-10  pt-4">
-                    {/*submit button*/}
-                    <Button  style={{backgroundColor: "#E7F0FF", outline: "0 0 10px #222D65", color: "#222D65"}}>Submit</Button>
-                    
-                </div>
+            <div className = "flex flex-col gap-8 padding-8">
+                {/*add equipment*/}
+                <h3 className ="text-lg font-bold font-medium mb-2 text-[#222D65]">Add Equipment</h3>
+                   
+                   {/*add equipment button*/}
+                    <div className="flex w-full items-center flex-row gap-4">
+                        
+                    {/*label*/}
+                            <div className = "flex flex-row flex-wrap gap-4"> 
+                                {
+                                equipList.map((equipment, idx) =>  <div key={idx} className="border-2 border-[#222D65] p-2 rounded-lg h-[400px]"> <EquipmentComponent key={idx} name={equipment.name} image={equipment.image }/> </div>)
+                                }
+                                
+                                <div>
+                                    <input ref={fileInputRef} type="file" onChange={handleFileSelected} style={{border: "2px dashed #B0B0B0", padding: "8px 12px", borderRadius:"10px", height:"400px", alignItems: "center"}}  className="hidden"/>
+
+                                    <div className="flex flex-col flex-end gap-4"> 
+                                        <button type="button" onClick = {openFilePicker} className="flex flex-col items-center justify-center border-2 border-dashed border-[#B0B0B0] rounded-[10px] h-[400px] w-[350px] gap-2" >
+                                            <span className = "text-sm font-large text-[#222D65]">Add a new Equipment</span>
+                                            <Image src = "/formkit_add.png" alt="icon" height = {40} width ={40}/>
+                                        </button>
+                                    </div> 
+                                    
+                                </div>
+                            </div>             
+                            
+                    </div>
+
+                {isVisible && (
+                    <div className = "flex justify-end mt-10  pt-4">
+                        {/*submit button*/}
+                        <Button  style={{backgroundColor: "#E7F0FF", height: "50px", width:"120px",border: "2px solid #222D65", color: "#222D65"}} onClick={handleSubmitEquipment}>Submit</Button>
+    
+                    </div>
+                )}
             </div>
         </div>)
 }
