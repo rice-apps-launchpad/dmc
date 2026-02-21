@@ -11,8 +11,8 @@ import {
   ComboboxItem,
   ComboboxLabel,
   ComboboxList,
-  ComboboxSeparator,
-} from "@/components/ui/combobox"
+} from "@/components/ui/combobox";
+import data from "@/lib/mock_form.json";
 
 const styles = {
     container: {
@@ -73,60 +73,30 @@ const styles = {
     
 } as const;
 
+const titles = [
+  {
+    value: "Cables and Adapters",
+    items: data
+  }
+]
 
-const timezones = [
-  {
-    value: "Americas",
-    items: [
-      "(GMT-5) New York",
-      "(GMT-8) Los Angeles",
-      "(GMT-6) Chicago",
-      "(GMT-5) Toronto",
-      "(GMT-8) Vancouver",
-      "(GMT-3) São Paulo",
-    ],
-  },
-  {
-    value: "Europe",
-    items: [
-      "(GMT+0) London",
-      "(GMT+1) Paris",
-      "(GMT+1) Berlin",
-      "(GMT+1) Rome",
-      "(GMT+1) Madrid",
-      "(GMT+1) Amsterdam",
-    ],
-  },
-  {
-    value: "Asia/Pacific",
-    items: [
-      "(GMT+9) Tokyo",
-      "(GMT+8) Shanghai",
-      "(GMT+8) Singapore",
-      "(GMT+4) Dubai",
-      "(GMT+11) Sydney",
-      "(GMT+9) Seoul",
-    ],
-  },
-] as const
 export function ComboboxWithGroupsAndSeparator() {
   return (
-    <Combobox items={timezones}>
+    <Combobox items={titles} itemToStringLabel={(title: typeof data[0]) => title.description}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
         <ComboboxEmpty>No timezones found.</ComboboxEmpty>
         <ComboboxList>
-          {(group, index) => (
+          {(group) => (
             <ComboboxGroup key={group.value} items={group.items}>
               <ComboboxLabel>{group.value}</ComboboxLabel>
               <ComboboxCollection>
-                {(item) => (
-                  <ComboboxItem key={item} value={item}>
-                    {item}
+                {(title) => (
+                  <ComboboxItem key={title.id} value={title}>
+                    {title.description}
                   </ComboboxItem>
                 )}
               </ComboboxCollection>
-              {index < timezones.length - 1 && <ComboboxSeparator />}
             </ComboboxGroup>
           )}
         </ComboboxList>
@@ -137,8 +107,6 @@ export function ComboboxWithGroupsAndSeparator() {
 
 export default function Page() {
   return (
-    <>
-      <Navbar page="kiosk" />
       <div style={styles.container}>
         <div style={styles.topSection}>
           <div style={styles.mainText}>
@@ -153,6 +121,5 @@ export default function Page() {
           <button style={styles.button}>Next</button>
         </div>
       </div>
-    </>
   )
 }
