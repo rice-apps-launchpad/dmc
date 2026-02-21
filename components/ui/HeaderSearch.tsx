@@ -1,6 +1,6 @@
 import * as React from 'react';
+import Link from "next/link";
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
@@ -12,7 +12,8 @@ import '@fontsource/inter';
 
 type SearchBarProps = {
     title: string,
-    buttonText: React.ReactNode
+    buttonText: React.ReactNode,
+    link: string
 }
 
 export function SearchBar(props : SearchBarProps) {
@@ -26,7 +27,9 @@ export function SearchBar(props : SearchBarProps) {
                         <Search className="" />
                     </InputGroupAddon>
                 </InputGroup>
-                <Button className='w-[11%] !bg-[#7B7B7B] h-[100%] text-white !rounded-full !font-inter' variant='outline'>{props.buttonText}</Button>
+                <Button className='w-[11%] !bg-[#7B7B7B] h-[100%] text-white !rounded-full !font-inter' asChild>
+                    <Link href={props.link}>{props.buttonText}</Link>
+                </Button>
             </div>
         </div>
     );
