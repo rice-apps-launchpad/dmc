@@ -1,8 +1,6 @@
-import * as React from 'react';
 import Link from "next/link";
-import { SearchBar } from "@/components/HeaderSearch";
+import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/navbar";
 import mockData from '@/lib/mock_form.json';
 
 type TextBarProps = {
@@ -34,17 +32,16 @@ function TextBar(props : TextBarProps) {
 export default function Page() {
     return (
         <div className='flex flex-col gap-[25px]'>
-            <div className='mb-[12px]'>
-                <Navbar page='admin'></Navbar>
+            <div className="mt-[37px]">
+                <SearchBar title='Forms' buttonText={<>+ Add a new form</>} link='/admin/forms/new' />
             </div>
-            <SearchBar title='Forms' buttonText={<>+ Add a new form</>} link='/admin/forms/new'></SearchBar>
             <div className='flex flex-col !gap-[12px]'>
                 <div className="grid grid-cols-[1fr_2fr_250px] items-center gap-4 mx-[47px] rounded-xl bg-[#1f2a63] text-white px-[70px] py-5 text-sm font-medium">
                     <span><strong>Form Title</strong></span>
                     <span><strong>Description</strong></span>
                 </div>
                 {mockData.map((form) => (
-                    <TextBar key={form.id} id={form.id} title={form.title} description={form.description}></TextBar>
+                    <TextBar key={form.id} id={form.id} title={form.title} description={form.description} />
                 ))}
             </div>
         </div>
