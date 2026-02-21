@@ -8,15 +8,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { ChevronDown, Play } from "lucide-react"
-import { SearchBar } from "@/components/ui/HeaderSearch";
-
-
-function TableRow({ children }: { children: React.ReactNode }) {
-    return (
-    <div className="border border-slate-400 hover:border-slate-900 transition rounded-xl">
-        {children}
-    </div>)
-}
+import { SearchBar } from "@/components/SearchBar";
+import { TableRow } from "@/components/TableRow";
 
 const rowLayout = "grid grid-cols-5 items-center justify-items-center gap-x-6 px-6 py-3";
 
@@ -32,17 +25,17 @@ export default function Page() {
         return acc;
     }, {});
     return (
-        <>
-            <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>}></SearchBar>
-            <div className="pl-[47px] pr-[47px]">
+        <div className='mt-[40px]'>
+            <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>} link='' />
+            <div className="pl-[47px] pr-[47px] mt-[24px]">
                 <div className="space-y-4">
                     { /* submissions header table */ }
-                    <div className={`${rowLayout} rounded-xl bg-[#222d65] text-[#e7f0ff] h-[80px] px-4 py-5 mb-4 text-sm font-medium`}>
-                        <span className="justify-self-start px-10">NetID / Form Title</span>
-                        <span>Form ID</span>
-                        <span>Created At</span>
-                        <span>Updated At</span>
-                        <span className="justify-self-start px-12">Status</span>
+                    <div className={`${rowLayout} rounded-xl bg-[#222d65] text-white h-[60px] mb-4 text-sm font-medium`}>
+                        <span className="justify-self-start px-10"><strong>NetID/Form Title</strong></span>
+                        <span><strong>Form ID</strong></span>
+                        <span><strong>Created At</strong></span>
+                        <span><strong>Updated At</strong></span>
+                        <span className="justify-self-start px-12"><strong>Status</strong></span>
                     </div>
 
                     { /* actual submissions */ }
@@ -58,14 +51,14 @@ export default function Page() {
                             <CollapsibleContent className="pt-2 space-y-2">
                                 {(submissions as any[]).map((s, i) => (
                                 <TableRow key={i}>
-                                    <div className={`${rowLayout} text-sm text-[#222d65]`}>
+                                    <div className={`grid grid-cols-5 items-center justify-items-center gap-x-6 h-full`}>
                                         <span className="justify-self-start px-10">Form 1 {/* use actual form number when available */}</span>
                                         <span>{s.id} {/*add zeros in front?*/}</span>
                                         <span>{s.created_at}</span>
                                         <span>{s.updated_at}</span>
                                         <span
                                             className={
-                                                "justify-self-start px-10" +
+                                                "justify-self-start px-12" +
                                                 (s.status === "Checked In"
                                                 ? " text-green-600 font-semibold"
                                                 : " text-purple-600 font-semibold")
@@ -81,6 +74,6 @@ export default function Page() {
                     ))}
                 </div>
             </div>
-        </>
+        </div>
     )
 }
