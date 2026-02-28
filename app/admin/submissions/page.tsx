@@ -1,13 +1,14 @@
 "use client"
 
-import mockSubmissions from "@/lib/mock_submissions.json"
+import mockSubmissions from "@/lib/mock_submissions.json";
 // collapsible component
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { ChevronDown, Play } from "lucide-react"
+  CollapsibleTrigger, 
+} from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Play, FileCheckIcon } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { TableRow } from "@/components/TableRow";
 
@@ -24,6 +25,22 @@ export default function Page() {
         acc[netid].push(submission);
         return acc;
     }, {});
+
+    const checkedOut: React.ReactNode = (
+        <span className="flex items-center gap-2 text-purple-600 font-semibold">
+            Checked Out
+          <Button
+                variant="ghost"
+                size="icon"
+                title="Check In"
+                className="h-6 w-6 text-purple-600 hover:!bg-white"
+            >
+                <FileCheckIcon className="h-4 w-4" />
+            </Button>
+        </span>
+    );
+
+
     return (
         <div className='mt-[40px]'>
             <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>} link='' />
@@ -64,7 +81,10 @@ export default function Page() {
                                                 : " text-purple-600 font-semibold")
                                             }
                                         >
-                                            {s.status}
+                                            {s.status === "Checked In"
+                                            ? s.status
+                                            : checkedOut
+                                            }
                                         </span>
                                     </div>
                                 </TableRow>
