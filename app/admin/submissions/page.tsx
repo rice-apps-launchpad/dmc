@@ -33,7 +33,7 @@ export default function Page() {
                 variant="ghost"
                 size="icon"
                 title="Check In"
-                className="h-6 w-6 text-purple-600 hover:!bg-white"
+                className="h-6 w-6 text-purple-600 hover:!text-purple-600"
             >
                 <FileCheckIcon className="h-4 w-4" />
             </Button>
