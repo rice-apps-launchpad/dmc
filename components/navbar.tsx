@@ -15,8 +15,8 @@ export default function Navbar({ page }: NavbarProps){
     }
 
     return(
-        <div className = "flex justify-center items-center h-[86px] text-white bg-[#222D65] w-full shadow-lg">
-            <div className="w-full px-[47px] flex flex-row justify-between items-center">
+        <div className = "flex justify-center items-center text-white bg-[#222D65] w-full shadow-lg">
+            <div className="w-full px-[47px] h-[86px] flex flex-row justify-between items-center">
                 <div className = "flex flex-row flex-start text-right items-center h-[48px] font-bold text-3xl gap-[100px]">
                     DMC {pageTitle}
                 </div>
@@ -38,7 +38,6 @@ export default function Navbar({ page }: NavbarProps){
                     </Link>
                 </div>
             </div>
-  
         </div>
         
     )
