@@ -11,6 +11,7 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 import { useParams } from 'next/navigation'
+import { Form } from '@base-ui/react'
 
 const styles = {
   page: {
@@ -63,7 +64,6 @@ const styles = {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      //flex: "1 1 100%"
       height: "20vh",
     },
     button: {
@@ -90,9 +90,15 @@ type EquipmentProps = {
     image: string[]
 }
 
-const frameworks = ["Not Selected", "Present", "Not Present"]
+type FormInputProps = {
+    title: string,
+    type: string,
+    placeholder: string
+}
 
-export function ExampleCombobox() {
+const frameworks = ["Present", "Not Present"]
+
+function AvailabilityStatus() {
   return (
     <Combobox items={frameworks}>
       <ComboboxInput placeholder="Not Selected" style={styles.combobox}/>
@@ -119,12 +125,20 @@ function EquipmentList({label, image}: EquipmentProps){
                 <img className="h-[100%]" src={image[index]} alt={label} /> </div>
                 <p className="text-[24px] mb-[10px] mt-[5px]">{label}</p>
                 <div>
-                  {<ExampleCombobox />}
+                  {<AvailabilityStatus />}
                 </div>
             </div>
         ))}
         </div>
     )
+}
+function FormInput(props: FormInputProps) {
+  return (
+    <div className="flex flex-col">
+      <p className="text-[24px]">{props.title}</p>
+      <input style={styles.input} type={props.type} placeholder= {props.placeholder}></input>
+    </div>
+  );
 }
 
 function SuspendedFormPage() {
@@ -148,10 +162,10 @@ function SuspendedFormPage() {
             </div>
             <h1 className=" mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
             <div style={styles.otherSection}>
-              <p className="text-[24px]">NetId <br /><input style={styles.input} type="text" placeholder="Add your NetId"></input></p>
-              <p className="text-[24px]">Due Date <br /><input style={styles.input} type="date" placeholder="Calendar Picker"></input></p>
-              <p className="text-[24px]">Due Time <br /><input style={styles.input} type="time" placeholder="Time Picker"></input></p>
-              <p className="text-[24px]">DMC Staff Member's Name <br /><input style={styles.input} type="text" placeholder="Add DMC Member's Name"></input></p>
+              <FormInput title={"NetId"} type={"text"} placeholder={'Add your NetId'}/>
+              <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'}/>
+              <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'}/>
+              <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"}/>
             </div>
         </div>
         <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
