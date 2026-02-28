@@ -1,5 +1,5 @@
 'use client'
-import { use } from 'react'
+import { Suspense, use } from 'react'
 
 import mockFormData from "@/lib/mock_form.json"
 import {
@@ -10,6 +10,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
+import { useParams } from 'next/navigation'
 
 const styles = {
   page: {
@@ -125,12 +126,9 @@ function EquipmentList({label, image}: EquipmentProps){
         </div>
     )
 }
-export default function FormPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const {id} =  use(params)
+
+function SuspendedFormPage() {
+  const { id } = useParams<{ id: string }>()
   const numericId = Number(id)
   const form = mockFormData.find(item => item.id === numericId)
   
@@ -161,5 +159,13 @@ export default function FormPage({
             <button style={styles.button}>Submit</button>     
         </div>
     </div>
+  )
+}
+
+export default function FormPage() {
+  return (
+    <Suspense>
+      <SuspendedFormPage />
+    </Suspense>
   )
 }
