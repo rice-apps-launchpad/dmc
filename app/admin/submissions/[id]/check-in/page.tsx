@@ -1,0 +1,188 @@
+"use client"
+
+import mockFormData from "@/lib/mock_form.json";
+import { Suspense } from 'react'
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import { useParams } from 'next/navigation';
+import { Form } from '@base-ui/react';
+
+const styles = {
+  page: {
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column" as "column",
+    maxHeight: "100vh",
+    width: "100%",
+    fontFamily: "DM Sans",
+    backgroundColor: "#ffffff",
+  },
+  formTitle: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    flexDirection: "column" as "column",
+    backgroundColor: "#e7f0ff",
+    paddingTop: "2vw",
+    paddingBottom: "2vw",
+  },
+  middleSection: {
+    width: "95%",
+    display: "flex",
+    flexDirection: "column" as "column",
+    paddingTop: "2vw",
+    flex: "1 1 100%",
+    paddingBottom: "2vw",
+  },
+  otherSection:{
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    columnGap: "100px",
+    rowGap: "40px",
+    flexWrap: "wrap" as "wrap",
+  },
+  input:{
+    backgroundColor: "#ffffff",
+    width: "100%",
+    padding: "15px",
+    border: "1px solid #000000",
+    borderRadius: "15px",
+    fontSize: "16px",
+    margin: "8px 0",
+  },
+   bottomSection: {
+      background: "white",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "20vh",
+    },
+    button: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "220px",
+      height: "64px",
+      border: "1.35px, solid, #222D65",
+      padding: "15px",
+      gap: "13.5px",
+      backgroundColor: "#E7F0FF",
+      borderRadius: "13.5px",
+      fontSize: "36px",
+      margin: "20px"
+    },
+    combobox: {
+      height: "64px",
+      backgroundColor: "#000000",
+    }
+}
+
+type EquipmentProps = {
+    label: string[],
+    image: string[]
+}
+
+type FormInputProps = {
+    title: string,
+    type: string,
+    placeholder: string,
+}
+
+type AvailabilityProps = {
+    framework: string[]
+}
+const frameworks = ["Present", "Not Present"]
+
+function AvailabilityStatus(props : AvailabilityProps) {
+    return (
+    <Combobox items={props.framework}>
+        <ComboboxInput placeholder="Not Selected" style={styles.combobox}/>
+        <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+            {(item) => (
+            <ComboboxItem key={item} value={item}>
+                {item}
+            </ComboboxItem>
+            )}
+        </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+    )
+}
+
+function FormInput(props: FormInputProps) {
+  return (
+    <div className="flex flex-col">
+      <p className="text-[24px]" style={{ whiteSpace: 'pre-wrap' }}>{props.title}</p>
+      <input style={styles.input} type={props.type} placeholder= {props.placeholder}></input>
+    </div>
+  );
+}
+
+function EquipmentList({label, image}: EquipmentProps){
+    return(
+        <div className="flex flex-column align-center gap-[100px] justify-start items-center flex-wrap">
+            {label.map((label, index) => (
+            <div key={index}>
+                <div className="flex items-center justify-center w-[30vh] h-[19vh] border-black border-[1px] rounded-[16px] mb-[10px] mt-[10px]">
+                <img className="h-[100%]" src={image[index]} alt={label} /> </div>
+                <p className="text-[24px] mb-[10px] mt-[5px]">{label}</p>
+                <div>
+                  {<AvailabilityStatus framework={frameworks} />}
+                </div>
+            </div>
+        ))}
+        </div>
+    )
+}
+
+export default function CheckInPage() {
+    const { id } = useParams<{ id: string }>()
+    const numericId = Number(id)
+    const form = mockFormData.find(item => item.id === numericId)
+  
+    return (
+        <Suspense>
+            <div style={styles.page}>
+                <div style={styles.formTitle}>
+                    <div className="w-[95%]">
+                        <h1 className="font-bold text-[34px]">{form?.title}</h1>
+                        <p className="text-[24px]">{form?.description}.</p>
+                    </div>
+                </div>
+                <div style={styles.middleSection}>
+                    <h1 className="font-bold text-[24px]">Equipment Details</h1>
+                    <div>
+                        <EquipmentList image={form?.equipment_images ?? []} label={form?.equipment_labels ?? []}/>
+                    </div>
+                    <div>
+                        <h1 className="mt-[30px] text-[24px] mb-[10px]">Were all parts returned in working order?</h1>
+                        <div className="w-[40vh]">
+                            <AvailabilityStatus framework={["Yes", "No"]} />
+                        </div>
+                    </div>
+                    <h1 className="mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
+                    <div style={styles.otherSection}>
+                        <FormInput title={"Description (optional)                                        "} 
+                        type={"text"} placeholder={'Enter description here'}/>
+                        <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'}/>
+                    </div>
+                </div>
+                <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
+                <div style={styles.bottomSection}>
+                    <button style={styles.button}>Submit</button>     
+                </div>
+            </div>
+        </Suspense>
+    );
+}
