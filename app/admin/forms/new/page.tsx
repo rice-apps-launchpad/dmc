@@ -1,169 +1,159 @@
 'use client';
+
 import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input";
-import { text } from "stream/consumers";
-import { ChangeEvent, useState } from 'react';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useState, useRef, ChangeEvent } from 'react';
+// import "./ImageOverlay.css";
 
 
-const inputstyles = {
-    boxShadow: "0 0 5px #222D65",
-    border: "2px solid #222D65",
-    testColor: "#222D65",
-    height: "80px",
-    color: "#222D65",
-    fontsize: "18px",
-    borderRadius:"10px",
-
-}
-
-const EquipmentContainer = {
-        display: "flex",
-        flexDirection: "column" as "column",
-        alignItems: "center",
-        padding: "8px",
-        border: "solid 2px black",
-        borderRadius: "8px",
-        width: "100%",
-        gap: "8px",
-    }
 
 type Equipment = {
-    name?: string;
-    image: string;
+  name?: string;
+  image: string;
+};
+
+type EquipmentProps = {
+  item: Equipment;
+  index: number;
+  setEquipList: React.Dispatch<React.SetStateAction<Equipment[]>>;
+};
+
+function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
+  const handleNameChange = (value: string) => {
+    setEquipList((prev) =>
+      prev.map((e, i) => (i === index ? { ...e, name: value } : e))
+    );
+  };
+
+  const handleDelete = () => {
+    setEquipList((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="flex flex-col items-left rounded-lg h-[357px] w-[350px] ">
+      <div style={{position: "relative", display: "inline-block" }} >
+        {item.image && (
+            <img
+            src={item.image}
+            alt={item.name}
+            style={{ width: "337px", height: "255px", paddingTop: "29px", paddingBottom: "29px", paddingLeft: "31px", paddingRight: "31px", border: "2px solid #222D65", marginBottom: "10px", borderRadius: "12px", objectFit: "cover", display:"block"
+            }}
+            />
+        )}
+        <Button 
+            style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                width: "28px",
+                height: "28px",
+                minWidth: "28px",
+                borderRadius: "50%",
+                backgroundColor: "#B20000",
+                color: "#ffffff",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid #ffffff",
+                cursor: "pointer",
+                zIndex: 2
+            }}
+            onClick={handleDelete}
+        >X</Button>
+      </div>
+
+        <input
+            type="text"
+            className="font-weight bold font-medium border-2 border-[#222D65] w-[300px] h-[86px] p-2 rounded-lg text-center"
+            placeholder="Equipment Label"
+            value={item.name || ""}
+            onChange={(e) => handleNameChange(e.target.value)}
+        />
+    </div>
+  );
 }
 
-type EquipmentProps = Equipment;
-
-
-
 export default function Page() {
-    //handle the change of the equipment input
-    let [addEquipmentName, setAdd] = useState('');
-    let [equipmentImage, setImage] = useState('');
-    let [equipList, setEquipList]= useState<Array<Equipment>>([]);
-    let [isVisible, setVisible] = useState(false);
-    let fileInputRef = useRef<HTMLInputElement>(null);
-    let [selectedFile, setSelectedFile] = useState<File | null>(null)
-    let [previewUrl, setPreviewUrl] = useState<string | null>(null)
-    
-    function EquipmentComponent(props: EquipmentProps) {
+  const [equipList, setEquipList] = useState<Equipment[]>([]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
-        function handleAddEquipmentNameChange(e: ChangeEvent<HTMLInputElement>) {
-            setAdd(addEquipmentName = e.target.value);
-        }
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-        return (
-            <div className = "EquipmentComponent">
-                <Button style={{width: "20px", height: "5px", borderRadius: "50%", backgroundColor: "#ff7949", border: "2px solid #222D65", color: "#222D65", display: "flex", alignItems: "center", justifyContent: "center"}} onClick ={handleDelete}>X</Button>
-    
-                <h1>{props.name}</h1>
-                {props.image && (
-                    <img src={props.image} alt={props.name} style={{ width: "300px", height: "300px", padding: "8px", border: "2px solid #222D65", }} />
-                )}
-                
-                <input className ="font-medium border-2 border-[#222D65] p-2 rounded-lg align-center" placeholder="Equipment Label" value={addEquipmentName} onChange={handleAddEquipmentNameChange}  />
-                
-            </div>
-        )
+  const openFilePicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setEquipList((prev) => [...prev, { image: previewUrl }]);
     }
+  };
 
+  const handleSubmit = () => {
+    console.log("Title:", title);
+    console.log("Description:", description);
+    console.log("Equipment:", equipList);
+    alert("Submitted! Check console for data.");
+  };
 
-    const openFilePicker = () => {
-    
-        fileInputRef.current?.click()
+  return (
+    <div className="flex flex-col h-full p-8 gap-10">
+      <h1 className="text-2xl font-bold mb-4 text-[#474747]">New Form</h1>
 
-    };
+      {/* Title & Description */}
+      <div className="flex flex-row gap-8">
 
-    const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-       const file = e.target.files?.[0]
-    
-        if (file) {
-            const previewUrl = URL.createObjectURL(file);
-            setEquipList(prev => [...prev, { image: previewUrl }])
-            setVisible(true);
-        }
-    }
+        <div className="flex flex-col flex-1">
+          <h3 className="text-lg font-bold mb-2 text-[#222D65]">Title</h3>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add your title here." className="border-2 border-[#222D65] font-bold px-2 pt-2 pb-8 rounded-lg h-20 text-lg"/>
+          
+        </div>
+        <div className="flex flex-col flex-1">
+          <h3 className="text-lg font-bold mb-2 text-[#222D65]">Description</h3>
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add your description here." className="border-2 border-[#222D65] font-bold px-2 pt-2 pb-8 rounded-lg h-20 text-lg"/>
+        
+        </div>
+      </div>
 
-    function handleDelete(){
-        setEquipList(equipList => equipList.slice(0, -1));
-    }
-    
-    function handleEquipmentImageChange(e: ChangeEvent<HTMLInputElement>) {
-        setImage(equipmentImage = e.target.value);
-    }
+      {/* Add Equipment */}
+      <div className="flex flex-col gap-4">
+        <h3 className="text-lg font-bold mb-2 text-[#222D65]">Add Equipment</h3>
 
-    function handleSubmitEquipment() {
-        if(!addEquipmentName.trim()) return;
-        const newEquip = {
-            name: addEquipmentName,
-            image: equipmentImage
-        };
+        <div className="flex flex-row flex-wrap gap-4">
+          {equipList.map((equipment, idx) => (
+            <EquipmentComponent key={idx} index={idx} item={equipment} setEquipList={setEquipList} />
+          ))}
 
-        setEquipList(equipList => [...equipList, newEquip])
-        setAdd('');
-        setImage('');
-        setVisible(false);
-    }
+          {/* Add new equipment button */}
+          <div>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelected} className="hidden"/>
+            <button
+              type="button"
+              onClick={openFilePicker}
+              className="flex flex-col items-center justify-center border-2 border-dashed border-[#B0B0B0] rounded-lg h-[357px] w-[337px] gap-2"
+            >
+              <span className="text-sm font-medium text-[#222D65]">
+                Add a new Equipment
+              </span>
+              <Image src="/formkit_add.png" alt="icon" width={40} height={40} />
+            </button>
+          </div>
+        </div>
+      </div>
 
-
-    return(
-        <div className = "flex flex-col h-full p-8 justify-between gap-10">
-            <div>
-                {/*title*/}
-                <h1 className="text-2xl font-bold mb-4 text-[#474747]">New Form</h1>
-            </div>
-
-            <div className="flex flex-row gap-8">
-                <div className = "flex flex-col flex-1">
-                    {/*form*/}
-                    <h3 className ="text-lg font-bold font-large mb-2 text-[#222D65]">Title</h3>
-                    <Input style = {inputstyles} placeholder="Add your title here." />
-                    
-                </div>
-                <div className = "flex flex-col flex-1">
-                    <h3 className ="text-lg font-bold  font-large mb-2 text-[#222D65]">Description</h3>
-                    <Input style = {inputstyles} placeholder="Add your description here."/>
-                </div>
-            </div>
-
-            <div className = "flex flex-col gap-8 padding-8">
-                {/*add equipment*/}
-                <h3 className ="text-lg font-bold font-medium mb-2 text-[#222D65]">Add Equipment</h3>
-                   
-                   {/*add equipment button*/}
-                    <div className="flex w-full items-center flex-row gap-4">
-                        
-                    {/*label*/}
-                            <div className = "flex flex-row flex-wrap gap-4"> 
-                                {
-                                equipList.map((equipment, idx) =>  <div key={idx} className="border-2 border-[#222D65] p-2 rounded-lg h-[400px]"> <EquipmentComponent key={idx} name={equipment.name} image={equipment.image }/> </div>)
-                                }
-                                
-                                <div>
-                                    <input ref={fileInputRef} type="file" onChange={handleFileSelected} style={{border: "2px dashed #B0B0B0", padding: "8px 12px", borderRadius:"10px", height:"400px", alignItems: "center"}}  className="hidden"/>
-
-                                    <div className="flex flex-col flex-end gap-4"> 
-                                        <button type="button" onClick = {openFilePicker} className="flex flex-col items-center justify-center border-2 border-dashed border-[#B0B0B0] rounded-[10px] h-[400px] w-[350px] gap-2" >
-                                            <span className = "text-sm font-large text-[#222D65]">Add a new Equipment</span>
-                                            <Image src = "/formkit_add.png" alt="icon" height = {40} width ={40}/>
-                                        </button>
-                                    </div> 
-                                    
-                                </div>
-                            </div>             
-                            
-                    </div>
-
-                {isVisible && (
-                    <div className = "flex justify-end mt-10  pt-4">
-                        {/*submit button*/}
-                        <Button  style={{backgroundColor: "#E7F0FF", height: "50px", width:"120px",border: "2px solid #222D65", color: "#222D65"}} onClick={handleSubmitEquipment}>Submit</Button>
-    
-                    </div>
-                )}
-            </div>
-        </div>)
+      {/* Submit Button */}
+      {equipList.length > 0 && (
+        <div className="flex justify-end mt-10">
+          <Button
+            style={{ backgroundColor: "#E7F0FF", height: "50px", width: "120px", border: "2px solid #222D65", color: "#222D65", }}
+            onClick={handleSubmit}>Submit</Button>
+        </div>
+      )}
+    </div>
+  );
 }
