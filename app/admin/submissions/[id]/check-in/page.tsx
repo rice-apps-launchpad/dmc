@@ -146,7 +146,7 @@ function EquipmentList({label, image}: EquipmentProps){
     )
 }
 
-export default function CheckInPage() {
+function CheckInContent() {
     const { id } = useParams<{ id: string }>()
     const numericId = Number(id)
     const form = mockFormData.find(item => item.id === numericId)
@@ -183,6 +183,14 @@ export default function CheckInPage() {
                     <button style={styles.button}>Submit</button>     
                 </div>
             </div>
+        </Suspense>
+    );
+}
+
+export default function CheckInPage() {
+    return (
+        <Suspense>
+            <CheckInContent />
         </Suspense>
     );
 }
