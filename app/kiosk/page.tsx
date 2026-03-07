@@ -1,5 +1,10 @@
 'use client'
 
+import { useState } from 'react';
+import Link from "next/link";
+
+
+
 import Navbar from "@/components/navbar";
 import {
   Combobox,
@@ -80,12 +85,24 @@ const titles = [
   }
 ]
 
-export function ComboboxWithGroupsAndSeparator() {
+type TTitle = {
+    id: number;
+    title: string;
+    description: string;
+    equipment_images: string[];
+    equipment_labels: string[];
+};
+
+export function ComboboxWithGroupsAndSeparator({
+  setSelectedTitle,
+}: {
+  setSelectedTitle: React.Dispatch<React.SetStateAction<TTitle['id'] | null>>;
+}) {
   return (
-    <Combobox items={titles} itemToStringLabel={(title: typeof data[0]) => title.description}>
+    <Combobox items={titles} itemToStringLabel={(title: TTitle) => title.description} onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
-        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+        <ComboboxEmpty>No equipment found.</ComboboxEmpty>
         <ComboboxList>
           {(group) => (
             <ComboboxGroup key={group.value} items={group.items}>
@@ -106,6 +123,8 @@ export function ComboboxWithGroupsAndSeparator() {
 }
 
 export default function Page() {
+  const [selectedTitle, setSelectedTitle] = useState<TTitle['id'] | null>(null);
+
   return (
       <div style={styles.container}>
         <div style={styles.topSection}>
@@ -114,11 +133,13 @@ export default function Page() {
               <p style={styles.formText}>Please select a form to complete.</p>
           </div>
           <div>
-              {<ComboboxWithGroupsAndSeparator />}
+              {<ComboboxWithGroupsAndSeparator setSelectedTitle={setSelectedTitle}/>}
           </div>
         </div>
         <div style={styles.bottomSection}>
-          <button style={styles.button}>Next</button>
+          <Link href={selectedTitle ?`/kiosk/forms/${selectedTitle}`: "#"}>
+            <button disabled={!selectedTitle} style={styles.button}>Next</button>
+          </Link>
         </div>
       </div>
   )
