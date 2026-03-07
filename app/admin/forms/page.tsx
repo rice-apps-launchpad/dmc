@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import mockData from '@/lib/mock_form.json';
+import { TableRow } from "@/components/TableRow";
 
 type TextBarProps = {
     title: string,
@@ -35,13 +36,29 @@ export default function Page() {
             <div className="mt-[37px]">
                 <SearchBar title='Forms' buttonText={<>+ Add a new form</>} link='/admin/forms/new' />
             </div>
-            <div className='flex flex-col !gap-[12px]'>
-                <div className="grid grid-cols-[1fr_2fr_250px] items-center gap-4 mx-[47px] rounded-xl bg-[#1f2a63] text-white px-[70px] py-5 text-sm font-medium">
+            <div className='flex flex-col !gap-[12px] mx-[47px]'>
+                <div className="grid grid-cols-[1fr_2fr_250px] items-center gap-4 rounded-xl bg-[#1f2a63] text-white px-[70px] py-5 text-sm font-medium">
                     <span><strong>Form Title</strong></span>
                     <span><strong>Description</strong></span>
                 </div>
                 {mockData.map((form) => (
-                    <TextBar key={form.id} id={form.id} title={form.title} description={form.description} />
+                    <TableRow key={form.id}>
+                        <div className='flex justify-center items-center h-full'>
+                            <div className='mx-[40px] grid grid-cols-[1fr_2fr_250px] items-center gap-4 w-full'>
+                                <p className="whitespace-nowrap text-[14px] !font-inter !font-[400]">{form.title}</p>
+                                <p className='whitespace-nowrap text-[14px] !font-inter !font-[400]'>{form.description}</p>
+                                <div className='flex flex-row justify-between items-center gap-[15px]'>
+                                    <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' asChild>
+                                        <Link href={`forms/${form.id}`}>View</Link>
+                                    </Button>
+                                    <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !rounded-xl !px-[18px] !py-[5px]' asChild>
+                                        <Link href={`forms/${form.id}/edit`}>Edit</Link>
+                                    </Button>
+                                    <Button variant='outline' className='!bg-white !border-[#B20000] !font-inter !font-[400] !text-[#B20000] !rounded-xl !px-[18px] !py-[5px]'>Delete</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </TableRow>
                 ))}
             </div>
         </div>
