@@ -1,13 +1,20 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import mockData from '@/lib/mock_form.json';
 import { TableRow } from "@/components/TableRow";
 
 type TextBarProps = {
     title: string,
     description: string,
     id: number
+}
+
+async function FormsData() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("forms").select();
+  return data;
 }
 
 function TextBar(props : TextBarProps) {
@@ -30,7 +37,9 @@ function TextBar(props : TextBarProps) {
     </div>;
 }
 
-export default function Page() {
+async function PageContent() {
+    const data = await FormsData();
+
     return (
         <div className='flex flex-col gap-[25px]'>
             <div className="mt-[37px]">
@@ -41,7 +50,7 @@ export default function Page() {
                     <span><strong>Form Title</strong></span>
                     <span><strong>Description</strong></span>
                 </div>
-                {mockData.map((form) => (
+                {(data !== null) ? data.map((form) => (
                     <TableRow key={form.id}>
                         <div className='flex justify-center items-center h-full'>
                             <div className='mx-[40px] grid grid-cols-[1fr_2fr_250px] items-center gap-4 w-full'>
@@ -59,8 +68,16 @@ export default function Page() {
                             </div>
                         </div>
                     </TableRow>
-                ))}
+                )) : <p>Data is null</p>}
             </div>
         </div>
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense>
+            <PageContent/>
+        </Suspense>
     );
 }
