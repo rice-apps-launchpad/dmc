@@ -1,11 +1,14 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
+import { createClient } from '@supabase/supabase-js'
+import { Suspense } from "react";
 import { Input } from "@/components/ui/input";
 // import Image from 'next/image';
 import { useState, useRef, ChangeEvent } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
+
 // import "./ImageOverlay.css";
 
 
@@ -81,11 +84,18 @@ export default function Page() {
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Title:", title);
-    console.log("Description:", description);
-    console.log("Equipment:", equipList);
-    alert("Submitted! Check console for data.");
+  const handleSubmit = async () => {
+    
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+    const equipmentLabels = equipList.map((equip) => equip.name);
+    const equipmentImages = equipList.map((equip) => equip.image);
+
+    const { data, error } = await supabase
+    .from('forms')
+    .insert([
+      { title: title, description: description, equipment_labels: equipmentLabels, equipment_images: equipmentImages }
+    ]);
+    setEquipList([]);
   };
 
   return (
