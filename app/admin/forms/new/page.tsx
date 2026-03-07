@@ -2,8 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Image from 'next/image';
+// import Image from 'next/image';
 import { useState, useRef, ChangeEvent } from 'react';
+import {CirclePlus} from 'lucide-react';
+import {X} from 'lucide-react';
 // import "./ImageOverlay.css";
 
 
@@ -28,7 +30,6 @@ function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
 
   const handleDelete = () => {
     setEquipList((prev) => prev.filter((_, i) => i !== index));
-    console.log("Deleted equipment at index:", index);
   };
 
   return (
@@ -45,13 +46,13 @@ function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
         <Button
           className="absolute -top-3 -right-3 size-[35px] rounded-full bg-[#B20000] text-white border border-[#222D65] flex items-center justify-center shrink-0 leading-none z-10"
           onClick={handleDelete}
-        >X</Button>
+        ><X color="white" size={30} /></Button>
       </div>
 
         <input
             type="text"
-            className="font-bold text-[#222D65] border-2 border-[#222D65] w-[315px] h-[86px] p-2 rounded-[20px] text-center"
-            placeholder="Equipment Label"
+            className="font-regular text-[#222D65] border-2 border-[#222D65] bg-white w-[315px] h-[86px] p-2 rounded-[20px] text-center"
+            placeholder="Add your label of the equipment."
             value={item.name || ""}
             onChange={(e) => handleNameChange(e.target.value)}
         />
@@ -78,7 +79,6 @@ export default function Page() {
 
       e.target.value =""; // Reset the file input for future uploads
     }
-    console.log(equipList);
   };
 
   const handleSubmit = () => {
@@ -125,9 +125,9 @@ export default function Page() {
             >
               <span className="text-[20px] font-bold text-[#5C5C5C]">
                 Add a new
-                <span className="block">Equipment</span>
+                <span className="block">equipment.</span>
               </span>
-              <Image src="/formkit_add.png" alt="icon" width={40} height={40} />
+                <CirclePlus color="grey" size={40} />
             </button>
           </div>
         </div>
