@@ -1,5 +1,18 @@
 'use client'
-import { Suspense, use } from 'react'
+import { Suspense, use, useEffect, useState } from 'react'
+import { createClient } from "@/lib/supabase/client";
+
+async function fetchFormData(id: number) {
+  const supabase = createClient();
+  const {data: formData} = await supabase.from("forms").select().eq("id", id).single()
+  return formData
+}
+
+async function getImageUrl(path: string) {
+  const supabase = createClient();
+  const { data } = await supabase.storage.from("equipment_images").getPublicUrl(path);
+  return data.publicUrl
+}
 
 import mockFormData from "@/lib/mock_form.json"
 import {
@@ -141,10 +154,39 @@ function FormInput(props: FormInputProps) {
   );
 }
 
+type TForm = {
+  title: string,
+  description: string,
+  equipment_labels: string[],
+  equipment_images: string[]
+}
+
 function SuspendedFormPage() {
   const { id } = useParams<{ id: string }>()
   const numericId = Number(id)
-  const form = mockFormData.find(item => item.id === numericId)
+  const [form, setForm] = useState<TForm>({title: "", description: "", equipment_labels: [], equipment_images: []});
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function getFormData() {
+      
+      const data = await fetchFormData(numericId);
+      setForm(data);
+    }
+    getFormData();
+  }, [setForm, fetchFormData, numericId])
+
+  useEffect(() => {
+    async function fetchImageUrls() {
+      const urls = await Promise.all(
+        form?.equipment_images?.map(async (image: string) => await getImageUrl(image)) ?? []
+      );
+
+      console.log(urls);
+      setImageUrls(urls);
+    }
+    fetchImageUrls();
+  }, [form?.equipment_images, setImageUrls, getImageUrl])
   
  
   return (
@@ -158,7 +200,7 @@ function SuspendedFormPage() {
         <div style={styles.middleSection}>
             <h1 className="font-bold text-[24px]">Equipment Details</h1>
             <div>
-                <EquipmentList image={form?.equipment_images ?? []} label={form?.equipment_labels ?? []}/>
+                <EquipmentList image={imageUrls} label={form?.equipment_labels ?? []}/>
             </div>
             <h1 className=" mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
             <div style={styles.otherSection}>
