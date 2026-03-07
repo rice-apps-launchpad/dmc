@@ -85,15 +85,21 @@ const titles = [
   }
 ]
 
+type TTitle = {
+    id: number;
+    title: string;
+    description: string;
+    equipment_images: string[];
+    equipment_labels: string[];
+};
+
 export function ComboboxWithGroupsAndSeparator({
-  selectedTitle,
   setSelectedTitle,
 }: {
-  selectedTitle: typeof data[0] | null;
-  setSelectedTitle: React.Dispatch<React.SetStateAction<typeof data[0] | null>>;
+  setSelectedTitle: React.Dispatch<React.SetStateAction<TTitle['id'] | null>>;
 }) {
   return (
-    <Combobox items={titles} itemToStringLabel={(title: typeof data[0]) => title.description} onValueChange={(value) => setSelectedTitle(value)}>
+    <Combobox items={titles} itemToStringLabel={(title: TTitle) => title.description} onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
         <ComboboxEmpty>No equipment found.</ComboboxEmpty>
@@ -117,7 +123,7 @@ export function ComboboxWithGroupsAndSeparator({
 }
 
 export default function Page() {
-  const [selectedTitle, setSelectedTitle] = useState<typeof data[0] | null>(null);
+  const [selectedTitle, setSelectedTitle] = useState<TTitle['id'] | null>(null);
 
   return (
       <div style={styles.container}>
@@ -127,14 +133,13 @@ export default function Page() {
               <p style={styles.formText}>Please select a form to complete.</p>
           </div>
           <div>
-              {<ComboboxWithGroupsAndSeparator selectedTitle={selectedTitle}
-            setSelectedTitle={setSelectedTitle}/>}
+              {<ComboboxWithGroupsAndSeparator setSelectedTitle={setSelectedTitle}/>}
           </div>
         </div>
         <div style={styles.bottomSection}>
-          <Link href={selectedTitle ?`/kiosk/forms/${selectedTitle.id}`: "#"}>
+          <Link href={selectedTitle ?`/kiosk/forms/${selectedTitle}`: "#"}>
             <button disabled={!selectedTitle} style={styles.button}>Next</button>
-            </Link>
+          </Link>
         </div>
       </div>
   )
