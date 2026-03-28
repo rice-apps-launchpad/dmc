@@ -106,7 +106,9 @@ type EquipmentProps = {
 type FormInputProps = {
     title: string,
     type: string,
-    placeholder: string
+    placeholder: string,
+    value: string,
+    onChange: (value: string) => void
 }
 
 const frameworks = ["Present", "Not Present"]
@@ -149,7 +151,7 @@ function FormInput(props: FormInputProps) {
   return (
     <div className="flex flex-col">
       <p className="text-[24px]">{props.title}</p>
-      <input style={styles.input} type={props.type} placeholder= {props.placeholder}></input>
+      <input style={styles.input} type={props.type} placeholder={props.placeholder} value={props.value} onChange={(e) => props.onChange(e.target.value)}></input>
     </div>
   );
 }
@@ -166,6 +168,10 @@ function SuspendedFormPage() {
   const numericId = Number(id)
   const [form, setForm] = useState<TForm>({title: "", description: "", equipment_labels: [], equipment_images: []});
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [netId, setNetId] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [dueTime, setDueTime] = useState("");
+  const [staffName, setStaffName] = useState("");
 
   useEffect(() => {
     async function getFormData() {
@@ -204,10 +210,10 @@ function SuspendedFormPage() {
             </div>
             <h1 className=" mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
             <div style={styles.otherSection}>
-              <FormInput title={"NetId"} type={"text"} placeholder={'Add your NetId'}/>
-              <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'}/>
-              <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'}/>
-              <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"}/>
+              <FormInput title={"NetId"} type={"text"} placeholder={'Add your NetId'} value={netId} onChange={setNetId}/>
+              <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'} value={dueDate} onChange={setDueDate}/>
+              <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'} value={dueTime} onChange={setDueTime}/>
+              <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"} value={staffName} onChange={setStaffName}/>
             </div>
         </div>
         <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
