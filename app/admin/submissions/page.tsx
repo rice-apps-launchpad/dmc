@@ -15,11 +15,32 @@ import { TableRow } from "@/components/TableRow";
 
 const rowLayout = "grid grid-cols-5 items-center justify-items-center gap-x-6 px-6 py-3";
 
+type TSubmission = {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    netid: string;
+    title: string;
+    category: string;
+    description: string;
+    equipment_images: string[];
+    equipment_labels: string[];
+    checkout_responses: boolean[];
+    due_date: string;
+    due_time: string;
+    checkout_staff: string;
+    checkin_responses: boolean[];
+    checkin_staff: string;
+    parts_working: boolean;
+    checkin_description: string;
+    status: string;
+};
+
 
 export default function Page() {
     // fetch submissions from supabase
     const supabase = createClient();
-    const [submissions, setSubmissions] = useState<any[]>([]);
+    const [submissions, setSubmissions] = useState<TSubmission[]>([]);
     useEffect(() => {
         const fetchSubmissions = async () => {
             const { data, error } = await supabase.from("submissions").select("*");
@@ -33,7 +54,7 @@ export default function Page() {
     }, []);
 
     // group submissions by netid - CHANGE LATER FOR OTHER GROUPS
-    const groupedByNetID = submissions.reduce((acc: Record<string, any[]>, submission: any) => {
+    const groupedByNetID = submissions.reduce((acc: Record<string, TSubmission[]>, submission: TSubmission) => {
         const netid = submission.netid;
         if (!acc[netid]) {
             acc[netid] = [];
@@ -82,7 +103,7 @@ export default function Page() {
                             </CollapsibleTrigger>
 
                             <CollapsibleContent className="pt-2 space-y-2">
-                                {(submissions as any[]).map((s, i) => (
+                                {(submissions as TSubmission[]).map((s, i) => (
                                 <TableRow key={i}>
                                     <div className={`grid grid-cols-5 items-center justify-items-center gap-x-6 h-full`}>
                                         <span className="justify-self-start px-10 whitespace-nowrap">{s.title}</span>
