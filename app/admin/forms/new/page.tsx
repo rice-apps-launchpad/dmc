@@ -68,6 +68,8 @@ export default function Page() {
   const [equipList, setEquipList] = useState<Equipment[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,7 +93,7 @@ export default function Page() {
     const equipmentLabels = equipList.map((equip) => equip.name);
 
     const uploadResults = await Promise.all(
-    equipList.map(async (equip, index) => {
+      equipList.map(async (equip, index) => {
         const filePath = `${equip.file.name}`;
         const { data, error } = await supabase.storage
         .from("equipment_images")
@@ -107,6 +109,7 @@ export default function Page() {
       .from("forms")
       .insert([{
         title,
+        category,
         description,
         equipment_labels: equipList.map((e) => e.name),
         equipment_images: uploadResults,
@@ -123,6 +126,14 @@ export default function Page() {
   return (
     <div className="flex flex-col h-full p-8 pl-12">
       <h1 className="text-[32px] font-bold mb-4 text-[#474747]">New Form</h1>
+
+      {/* Category */}
+
+        <div className="flex flex-col mb-4">
+          <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Category</h3>
+          <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Add your category here." className="border-2 border-[#222D65] text-[#222D65] font-bold px-4 pt-2 pb-8 rounded-[20px] h-20 text-lg mb-4 w-[calc(50%-16px)]"/>
+          
+        </div>
 
       {/* Title & Description */}
       <div className="flex flex-row gap-8">
