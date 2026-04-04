@@ -9,7 +9,6 @@ import { useState, useRef, ChangeEvent } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
 import {v4 as uuidv4} from 'uuid';
-// import "./ImageOverlay.css";
 
 
 
@@ -90,21 +89,19 @@ export default function Page() {
   const handleSubmit = async () => {
     
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!);
-    const equipmentLabels = equipList.map((equip) => equip.name);
 
     const uploadResults = await Promise.all(
       equipList.map(async (equip, index) => {
-        const filePath = `${equip.file.name}`;
         const { data, error } = await supabase.storage
         .from("equipment_images")
-        .upload(filePath, equip.file);
+        .upload(uuidv4(), equip.file);
 
         if (error) throw new Error(`Upload failed for image ${index}: ${error.message}`);
         return data.path; // collect the path of each uploaded image
       })
     );
 
-  // Insert one row with all labels and image paths
+    // Insert one row with all labels and image paths
     const { data: insertData, error: insertError } = await supabase
       .from("forms")
       .insert([{
