@@ -101,7 +101,7 @@ export default function Page() {
           
         </div>
         <div className="flex flex-col flex-1">
-          <h3 className="text-[25px]  font-bold mb-1 text-[#222D65]">Description</h3>
+          <h3 className="text-[25px]  font-bold mb-1 text-[#222D65]">Subtitle</h3>
           <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add your description here." className="border-2 border-[#222D65] text-[#222D65] font-bold px-4 pt-2 pb-8 rounded-[20px] h-20 text-lg"/>
         
         </div>
@@ -109,7 +109,7 @@ export default function Page() {
 
       {/* Add Equipment */}
       <div className="flex flex-col gap-4 mt-14">
-        <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment</h3>
+        <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment Accessory</h3>
 
         <div className="flex flex-wrap  gap-y-20">
             {equipList.map((equipment, idx) => (
