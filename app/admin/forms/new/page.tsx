@@ -33,13 +33,13 @@ function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
   };
 
   return (
-    <div className="flex flex-col items-left rounded-lg gap-4 h-[355px] w-[337px] ">
-      <div className="relative w-[315px] flex-1 pt-[19px] pb-[19px] pr-[21px] pl-[21px] border-2 border-[#222D65] rounded-[20px] ">
+    <div className="flex flex-col items-left rounded-lg gap-4 h-[355px] w-[337px]">
+      <div className="relative w-[315px] flex-1 pt-[19px] pb-[19px] pr-[21px] pl-[21px] border-2 border-[#222D65] rounded-[20px]">
         {item.image && (
             <img
               src={item.image}
               alt={item.name}
-              className="w-full h-full object-cover rounded-md"
+              className="h-[315px] w-[337px] w-object-cover rounded-md"
             />
         )}
 
@@ -101,7 +101,7 @@ export default function Page() {
           
         </div>
         <div className="flex flex-col flex-1">
-          <h3 className="text-[25px]  font-bold mb-1 text-[#222D65]">Description</h3>
+          <h3 className="text-[25px]  font-bold mb-1 text-[#222D65]">Subtitle</h3>
           <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add your description here." className="border-2 border-[#222D65] text-[#222D65] font-bold px-4 pt-2 pb-8 rounded-[20px] h-20 text-lg"/>
         
         </div>
@@ -109,10 +109,10 @@ export default function Page() {
 
       {/* Add Equipment */}
       <div className="flex flex-col gap-4 mt-14">
-        <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment</h3>
+        <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment Accessory</h3>
 
-        <div className="flex flex-row flex-wrap flex-1">
-          {equipList.map((equipment, idx) => (
+        <div className="flex flex-wrap  gap-y-20">
+            {equipList.map((equipment, idx) => (
             <EquipmentComponent key={idx} index={idx} item={equipment} setEquipList={setEquipList} />
           ))}
           {/* Add new equipment button */}
