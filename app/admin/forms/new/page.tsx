@@ -2,15 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { createClient } from '@supabase/supabase-js'
-import { Suspense } from "react";
 import { Input } from "@/components/ui/input";
 // import Image from 'next/image';
 import { useState, useRef, ChangeEvent } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
 import {v4 as uuidv4} from 'uuid';
-
-
+import { useRouter } from "next/navigation";
 
 type Equipment = {
   name?: string;
@@ -69,6 +67,7 @@ export default function Page() {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
 
+  const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -116,7 +115,7 @@ export default function Page() {
       console.error("Insert failed:", insertError.message);
     } else {
       console.log("Submitted!", insertData);
-      setEquipList([]);
+      router.push("/admin/forms");
     }
   };
 
