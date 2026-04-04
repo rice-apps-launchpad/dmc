@@ -2,8 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Image from 'next/image';
+// import Image from 'next/image';
 import { useState, useRef, ChangeEvent } from 'react';
+import {CirclePlus} from 'lucide-react';
+import {X} from 'lucide-react';
 // import "./ImageOverlay.css";
 
 
@@ -28,30 +30,29 @@ function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
 
   const handleDelete = () => {
     setEquipList((prev) => prev.filter((_, i) => i !== index));
-    console.log("Deleted equipment at index:", index);
   };
 
   return (
-    <div className="flex flex-col items-left rounded-lg gap-4 h-[355px] w-[337px] ">
-      <div className="relative w-[315px] flex-1 pt-[19px] pb-[19px] pr-[21px] pl-[21px] border-2 border-[#222D65] rounded-[20px] ">
+    <div className="flex flex-col items-left rounded-lg gap-4 h-[355px] w-[337px]">
+      <div className="relative w-[315px] flex-1 pt-[19px] pb-[19px] pr-[21px] pl-[21px] border-2 border-[#222D65] rounded-[20px]">
         {item.image && (
             <img
               src={item.image}
               alt={item.name}
-              className="w-full h-full object-cover rounded-md"
+              className="h-[315px] w-[337px] w-object-cover rounded-md"
             />
         )}
 
         <Button
           className="absolute -top-3 -right-3 size-[35px] rounded-full bg-[#B20000] text-white border border-[#222D65] flex items-center justify-center shrink-0 leading-none z-10"
           onClick={handleDelete}
-        >X</Button>
+        ><X color="white" size={30} /></Button>
       </div>
 
         <input
             type="text"
-            className="font-bold text-[#222D65] border-2 border-[#222D65] w-[315px] h-[86px] p-2 rounded-[20px] text-center"
-            placeholder="Equipment Label"
+            className="font-regular text-[#222D65] border-2 border-[#222D65] bg-white w-[315px] h-[86px] p-2 rounded-[20px] text-center"
+            placeholder="Add your label of the equipment."
             value={item.name || ""}
             onChange={(e) => handleNameChange(e.target.value)}
         />
@@ -78,7 +79,6 @@ export default function Page() {
 
       e.target.value =""; // Reset the file input for future uploads
     }
-    console.log(equipList);
   };
 
   const handleSubmit = () => {
@@ -111,8 +111,8 @@ export default function Page() {
       <div className="flex flex-col gap-4 mt-14">
         <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment</h3>
 
-        <div className="flex flex-row flex-wrap flex-1">
-          {equipList.map((equipment, idx) => (
+        <div className="flex flex-wrap  gap-y-20">
+            {equipList.map((equipment, idx) => (
             <EquipmentComponent key={idx} index={idx} item={equipment} setEquipList={setEquipList} />
           ))}
           {/* Add new equipment button */}
@@ -125,9 +125,9 @@ export default function Page() {
             >
               <span className="text-[20px] font-bold text-[#5C5C5C]">
                 Add a new
-                <span className="block">Equipment</span>
+                <span className="block">equipment.</span>
               </span>
-              <Image src="/formkit_add.png" alt="icon" width={40} height={40} />
+                <CirclePlus color="grey" size={40} />
             </button>
           </div>
         </div>
