@@ -1,6 +1,6 @@
 "use client"
 
-import mockFormData from "@/lib/mock_form.json";
+import mockFormData from "@/lib/mock_submissions.json";
 import { Suspense } from 'react'
 import {
   Combobox,
@@ -149,7 +149,7 @@ function EquipmentList({label, image}: EquipmentProps){
 function CheckInContent() {
     const { id } = useParams<{ id: string }>()
     const numericId = Number(id)
-    const form = mockFormData.find(item => item.id === numericId)
+    const form = mockFormData.find(item => Number.parseInt(item.id) === numericId)
   
     return (
         <Suspense>
