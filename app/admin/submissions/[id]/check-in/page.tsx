@@ -1,6 +1,7 @@
 "use client"
 
-import mockFormData from "@/lib/mock_form.json";
+// import mockFormData from "@/lib/mock_form.json";
+import { createClient } from "@/lib/supabase/client";
 import { Suspense } from 'react'
 import {
   Combobox,
@@ -12,7 +13,10 @@ import {
 } from "@/components/ui/combobox";
 import { useParams } from 'next/navigation';
 import { Form } from '@base-ui/react';
-
+import { useEffect, useState } from "react";
+import { TSubmission } from "../../page";
+import { Input } from "postcss";
+import { useRouter } from "next/navigation";
 const styles = {
   page: {
     flex: 1,
@@ -88,23 +92,27 @@ const styles = {
 
 type EquipmentProps = {
     label: string[],
-    image: string[]
+    image: string[],
+    responses: string[],
+    onResponseChange: (index: number, value: string) => void;
 }
 
 type FormInputProps = {
     title: string,
     type: string,
     placeholder: string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 type AvailabilityProps = {
-    framework: string[]
+    framework: string[],
+    value: string,
+    onValueChange: (value: string) => void;
 }
-const frameworks = ["Present", "Not Present"]
 
 function AvailabilityStatus(props : AvailabilityProps) {
     return (
-    <Combobox items={props.framework}>
+    <Combobox value={props.value} onValueChange={(val) => props.onValueChange(val ?? '')} items={props.framework}>
         <ComboboxInput placeholder="Not Selected" style={styles.combobox}/>
         <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -124,21 +132,21 @@ function FormInput(props: FormInputProps) {
   return (
     <div className="flex flex-col">
       <p className="text-[24px]" style={{ whiteSpace: 'pre-wrap' }}>{props.title}</p>
-      <input style={styles.input} type={props.type} placeholder= {props.placeholder}></input>
+      <input style={styles.input} type={props.type} placeholder= {props.placeholder} onChange={props.onChange}></input>
     </div>
   );
 }
 
-function EquipmentList({label, image}: EquipmentProps){
+function EquipmentList({label, image, responses, onResponseChange}: EquipmentProps){
     return(
         <div className="flex flex-column align-center gap-[100px] justify-start items-center flex-wrap">
             {label.map((label, index) => (
             <div key={index}>
                 <div className="flex items-center justify-center w-[30vh] h-[19vh] border-black border-[1px] rounded-[16px] mb-[10px] mt-[10px]">
-                <img className="h-[100%]" src={image[index]} alt={label} /> </div>
+                <img className="h-[100%] " src={image[index]} alt={label} /> </div>
                 <p className="text-[24px] mb-[10px] mt-[5px]">{label}</p>
                 <div>
-                  {<AvailabilityStatus framework={frameworks} />}
+                  {<AvailabilityStatus framework={["Present", "Not Present"]} value={responses[index]} onValueChange={(value) => onResponseChange(index, value)} />}
                 </div>
             </div>
         ))}
@@ -149,8 +157,65 @@ function EquipmentList({label, image}: EquipmentProps){
 function CheckInContent() {
     const { id } = useParams<{ id: string }>()
     const numericId = Number(id)
-    const form = mockFormData.find(item => item.id === numericId)
+    const router = useRouter();
+    // const form = mockFormData.find(item => item.id === numericId)
   
+    const [form, setForm] = useState<TSubmission | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [equipmentResponses, setEquipmentResponses] = useState<string[]>([]);
+    const [partsWorking, setPartsWorking] = useState<string>("");
+    const [checkinDescription, setCheckinDescription] = useState("");
+    const [checkinStaff, setCheckinStaff] = useState("");
+
+    const supabase = createClient();
+
+    const handleEquipmentChange = (index: number, value: string) => {
+        const newResponses = [...equipmentResponses];
+        newResponses[index] = value;
+        setEquipmentResponses(newResponses);
+    };
+    useEffect(() => {
+        async function fetchSubmissaion() {
+
+            const { data } = await supabase
+                .from("submissions").select("*")
+                .eq("id", id).single();
+            if (data){
+                setForm(data);
+                setEquipmentResponses(new Array(data.equipment_labels.length).fill(""));
+            }
+            
+        }
+
+        fetchSubmissaion();
+    }, [id]);
+
+    const handleCheckIn = async () => {
+        setSubmitting(true);
+        
+        const booleanResponses = equipmentResponses.map(res => res === "Present");
+        const partsWorkingBoolean = partsWorking === "Yes";
+        const { error } = await supabase
+            .from("submissions")
+            .update({
+                checkin_responses: booleanResponses, 
+                checkin_staff: checkinStaff,
+                checkin_description: checkinDescription,
+                parts_working: partsWorkingBoolean,
+                status: "Checked In", // Update the status
+         })
+            .eq("id", id);
+
+        if (error) {
+            alert("Error updating record: " + error.message);
+            setSubmitting(false);
+        } else {
+            alert("Successfully Checked In!");
+            router.push("/admin/submissions");
+        }
+            setSubmitting(false);
+        };
     return (
         <Suspense>
             <div style={styles.page}>
@@ -163,24 +228,24 @@ function CheckInContent() {
                 <div style={styles.middleSection}>
                     <h1 className="font-bold text-[24px]">Equipment Details</h1>
                     <div>
-                        <EquipmentList image={form?.equipment_images ?? []} label={form?.equipment_labels ?? []}/>
+                        <EquipmentList image={form?.equipment_images ?? []} label={form?.equipment_labels ?? []} responses={equipmentResponses} onResponseChange={handleEquipmentChange} />
                     </div>
                     <div>
                         <h1 className="mt-[30px] text-[24px] mb-[10px]">Were all parts returned in working order?</h1>
                         <div className="w-[40vh]">
-                            <AvailabilityStatus framework={["Yes", "No"]} />
+                            <AvailabilityStatus framework={["Yes", "No"]} value={partsWorking} onValueChange={setPartsWorking} />
                         </div>
                     </div>
                     <h1 className="mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
                     <div style={styles.otherSection}>
                         <FormInput title={"Description (optional)                                        "} 
-                        type={"text"} placeholder={'Enter description here'}/>
-                        <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'}/>
+                        type={"text"} placeholder={'Enter description here'} onChange={(e) => setCheckinDescription(e.target.value)} />
+                        <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'} onChange={(e) => setCheckinStaff(e.target.value)} />
                     </div>
                 </div>
                 <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
                 <div style={styles.bottomSection}>
-                    <button style={styles.button}>Submit</button>     
+                    <button style={styles.button} onClick={handleCheckIn} disabled={submitting}>Submit</button>     
                 </div>
             </div>
         </Suspense>
