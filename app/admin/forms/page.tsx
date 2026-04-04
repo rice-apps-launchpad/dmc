@@ -1,33 +1,43 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import mockData from '@/lib/mock_form.json';
 import { TableRow } from "@/components/TableRow";
 
-type TextBarProps = {
-    title: string,
-    description: string,
-    id: number
+async function formsData() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("forms").select();
+  return data;
 }
 
-function TextBar(props : TextBarProps) {
-    return <div>
-        <div className='rounded-3xl border bg-white mx-[47px] h-[55px] px-6 gap-[200px] flex justify-center'>
-            <div className='mx-[40px] grid grid-cols-[1fr_2fr_250px] items-center gap-4 w-full'>
-                <p className="whitespace-nowrap text-[14px] !font-inter !font-[400]">{props.title}</p>
-                <p className='whitespace-nowrap text-[14px] !font-inter !font-[400]'>{props.description}</p>
-                <div className='flex flex-row justify-between items-center gap-[15px]'>
-                    <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' asChild>
-                        <Link href={`forms/${props.id}`}>View</Link>
-                    </Button>
-                    <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !rounded-xl !px-[18px] !py-[5px]' asChild>
-                        <Link href={`forms/${props.id}/edit`}>Edit</Link>
-                    </Button>
-                    <Button variant='outline' className='!bg-white !border-[#B20000] !font-inter !font-[400] !text-[#B20000] !rounded-xl !px-[18px] !py-[5px]'>Delete</Button>
+async function PageContent() {
+    const data = await formsData();
+
+    if (data === null)
+        return <p>No forms found.</p>
+
+    return (
+        data.map((form) => (
+            <TableRow key={form.id}>
+                <div className='flex justify-center items-center h-full'>
+                    <div className='mx-[40px] grid grid-cols-[1fr_2fr_250px] items-center gap-4 w-full'>
+                        <p className="whitespace-nowrap text-[14px] !font-inter !font-[400]">{form.title}</p>
+                        <p className='whitespace-nowrap text-[14px] !font-inter !font-[400]'>{form.description}</p>
+                        <div className='flex flex-row justify-between items-center gap-[15px]'>
+                            <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' asChild>
+                                <Link href={`forms/${form.id}`}>View</Link>
+                            </Button>
+                            <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !rounded-xl !px-[18px] !py-[5px]' asChild>
+                                <Link href={`forms/${form.id}/edit`}>Edit</Link>
+                            </Button>
+                            <Button variant='outline' className='!bg-white !border-[#B20000] !font-inter !font-[400] !text-[#B20000] !rounded-xl !px-[18px] !py-[5px]'>Delete</Button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>;
+            </TableRow>
+        ))
+    )
 }
 
 export default function Page() {
@@ -41,25 +51,9 @@ export default function Page() {
                     <span><strong>Form Title</strong></span>
                     <span><strong>Description</strong></span>
                 </div>
-                {mockData.map((form) => (
-                    <TableRow key={form.id}>
-                        <div className='flex justify-center items-center h-full'>
-                            <div className='mx-[40px] grid grid-cols-[1fr_2fr_250px] items-center gap-4 w-full'>
-                                <p className="whitespace-nowrap text-[14px] !font-inter !font-[400]">{form.title}</p>
-                                <p className='whitespace-nowrap text-[14px] !font-inter !font-[400]'>{form.description}</p>
-                                <div className='flex flex-row justify-between items-center gap-[15px]'>
-                                    <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' asChild>
-                                        <Link href={`forms/${form.id}`}>View</Link>
-                                    </Button>
-                                    <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !rounded-xl !px-[18px] !py-[5px]' asChild>
-                                        <Link href={`forms/${form.id}/edit`}>Edit</Link>
-                                    </Button>
-                                    <Button variant='outline' className='!bg-white !border-[#B20000] !font-inter !font-[400] !text-[#B20000] !rounded-xl !px-[18px] !py-[5px]'>Delete</Button>
-                                </div>
-                            </div>
-                        </div>
-                    </TableRow>
-                ))}
+                <Suspense>
+                    <PageContent />
+                </Suspense>
             </div>
         </div>
     );

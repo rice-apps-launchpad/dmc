@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from "next/link";
-
-
+import { createClient } from "@/lib/supabase/client";
 
 import Navbar from "@/components/navbar";
 import {
@@ -17,7 +16,6 @@ import {
   ComboboxLabel,
   ComboboxList,
 } from "@/components/ui/combobox";
-import data from "@/lib/mock_form.json";
 
 const styles = {
     container: {
@@ -78,19 +76,11 @@ const styles = {
     
 } as const;
 
-const titles = [
-  {
-    value: "Cables and Adapters",
-    items: data
-  }
-]
-
 type TTitle = {
     id: number;
+    category: string;
     title: string;
     description: string;
-    equipment_images: string[];
-    equipment_labels: string[];
 };
 
 export function ComboboxWithGroupsAndSeparator({
@@ -98,24 +88,50 @@ export function ComboboxWithGroupsAndSeparator({
 }: {
   setSelectedTitle: React.Dispatch<React.SetStateAction<TTitle['id'] | null>>;
 }) {
+  // fetch titles
+  const supabase = createClient();
+  const [titles, setTitles] = useState<TTitle[]>([]);
+  useEffect(() => {
+      const fetchTitles = async () => {
+          const { data, error } = await supabase.from("forms").select("id, category, title, description");
+          if (error) {
+              console.error("Error fetching titles:", error);
+          } else {
+              setTitles(data);
+          }
+      };
+      fetchTitles();
+  }, []);
+
+  // group titles by category
+  const grouped = titles.reduce((acc: Record<string, TTitle[]>, title) => {
+    if (!acc[title.category]) {
+      acc[title.category] = [];
+    }
+    acc[title.category].push(title);
+    return acc;
+  }, {});
+  
   return (
-    <Combobox items={titles} itemToStringLabel={(title: TTitle) => title.description} onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
+    <Combobox items={titles} 
+              itemToStringLabel={(title: TTitle) => title.description} 
+              onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
         <ComboboxEmpty>No equipment found.</ComboboxEmpty>
         <ComboboxList>
-          {(group) => (
-            <ComboboxGroup key={group.value} items={group.items}>
-              <ComboboxLabel>{group.value}</ComboboxLabel>
+          {Object.entries(grouped).map(([category, items]) => (
+            <ComboboxGroup key={category} items={items}>
+              <ComboboxLabel>{category}</ComboboxLabel>
               <ComboboxCollection>
-                {(title) => (
+                {(title: TTitle) => (
                   <ComboboxItem key={title.id} value={title}>
                     {title.description}
                   </ComboboxItem>
                 )}
               </ComboboxCollection>
             </ComboboxGroup>
-          )}
+          ))}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
