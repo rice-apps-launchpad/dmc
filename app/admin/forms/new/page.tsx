@@ -1,18 +1,19 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
+import { createClient } from '@supabase/supabase-js'
 import { Input } from "@/components/ui/input";
 // import Image from 'next/image';
 import { useState, useRef, ChangeEvent } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
-// import "./ImageOverlay.css";
-
-
+import {v4 as uuidv4} from 'uuid';
+import { useRouter } from "next/navigation";
 
 type Equipment = {
   name?: string;
   image: string;
+  file: File
 };
 
 type EquipmentProps = {
@@ -64,6 +65,9 @@ export default function Page() {
   const [equipList, setEquipList] = useState<Equipment[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+
+  const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,22 +79,57 @@ export default function Page() {
     const file = e.target.files?.[0];
     if (file) {
       const previewUrl = URL.createObjectURL(file);
-      setEquipList((prev) => [...prev, { image: previewUrl }]);
+      setEquipList((prev) => [...prev, { image: previewUrl, file: file }]);
 
       e.target.value =""; // Reset the file input for future uploads
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Title:", title);
-    console.log("Description:", description);
-    console.log("Equipment:", equipList);
-    alert("Submitted! Check console for data.");
+  const handleSubmit = async () => {
+    
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!);
+
+    const uploadResults = await Promise.all(
+      equipList.map(async (equip, index) => {
+        const { data, error } = await supabase.storage
+        .from("equipment_images")
+        .upload(uuidv4(), equip.file);
+
+        if (error) throw new Error(`Upload failed for image ${index}: ${error.message}`);
+        return data.path; // collect the path of each uploaded image
+      })
+    );
+
+    // Insert one row with all labels and image paths
+    const { data: insertData, error: insertError } = await supabase
+      .from("forms")
+      .insert([{
+        title,
+        category,
+        description,
+        equipment_labels: equipList.map((e) => e.name),
+        equipment_images: uploadResults,
+    }]);
+
+    if (insertError) {
+      console.error("Insert failed:", insertError.message);
+    } else {
+      console.log("Submitted!", insertData);
+      router.push("/admin/forms");
+    }
   };
 
   return (
     <div className="flex flex-col h-full p-8 pl-12">
       <h1 className="text-[32px] font-bold mb-4 text-[#474747]">New Form</h1>
+
+      {/* Category */}
+
+        <div className="flex flex-col mb-4">
+          <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Category</h3>
+          <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Add your category here." className="border-2 border-[#222D65] text-[#222D65] font-bold px-4 pt-2 pb-8 rounded-[20px] h-20 text-lg mb-4 w-[calc(50%-16px)]"/>
+          
+        </div>
 
       {/* Title & Description */}
       <div className="flex flex-row gap-8">
