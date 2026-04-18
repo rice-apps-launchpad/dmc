@@ -1,5 +1,7 @@
 'use client'
 import { Suspense, use } from 'react'
+import { Checkbox } from "@/components/ui/checkbox"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 
 import mockFormData from "@/lib/mock_form.json"
 import {
@@ -161,13 +163,34 @@ function SuspendedFormPage() {
                 <EquipmentList image={form?.equipment_images ?? []} label={form?.equipment_labels ?? []}/>
             </div>
             <h1 className=" mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
+            
             <div style={styles.otherSection}>
-              <FormInput title={"NetId"} type={"text"} placeholder={'Add your NetId'}/>
-              <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'}/>
-              <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'}/>
-              <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"}/>
+              <div className="flex flex-row gap-[40px] text-[30px]">
+                <FormInput title={"Name"} type={"text"} placeholder={'Add your Name'}/>
+                <FormInput title={"NetId"} type={"text"} placeholder={'Add your NetId'}/>
+              </div>
             </div>
-        </div>
+            <h1 className=" mt-[20px] font-bold text-[24px] mb-[15px]">Staff</h1>
+            <div style={styles.otherSection}>
+              <div className="flex flex-row gap-[40px] text-[30px]">
+                <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'}/>
+                <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'}/>
+                <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'}/>
+                <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
+                    <FieldGroup className="mx-auto w-56">
+                        <Field orientation="horizontal" className="flex items-center gap-3"> {/* items-center helps align large text with checkbox */}
+                            <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
+                            <FieldLabel htmlFor="terms-checkbox-bassic" className="text-[24px]">
+                                Scan In
+                            </FieldLabel>
+                        </Field>
+                    </FieldGroup>
+                </div>
+              </div>
+            </div>
+              
+
+          </div>
         <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
         <div style={styles.bottomSection}>
             <button style={styles.button}>Submit</button>     
