@@ -1,6 +1,8 @@
 "use client"
 
 import mockFormData from "@/lib/mock_submissions.json";
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { Suspense } from 'react'
 import {
   Combobox,
@@ -12,6 +14,8 @@ import {
 } from "@/components/ui/combobox";
 import { useParams } from 'next/navigation';
 import { Form } from '@base-ui/react';
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+
 
 const styles = {
   page: {
@@ -171,11 +175,28 @@ function CheckInContent() {
                             <AvailabilityStatus framework={["Yes", "No"]} />
                         </div>
                     </div>
-                    <h1 className="mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
+                    <h1 className="mt-[65px] font-bold text-[24px] mb-[15px]">Notes</h1>
                     <div style={styles.otherSection}>
-                        <FormInput title={"Description (optional)                                        "} 
-                        type={"text"} placeholder={'Enter description here'}/>
-                        <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'}/>
+                        <div className = "flex flex-col">
+                            <FormInput title={"Description (optional)                                        "} 
+                            type={"text"} placeholder={'Enter description here'}/>
+                            <p className="mt-2 text-[18px]">
+                                <strong className="italic">Please remember to format the memory card and charge the battery if less than 70% (if applicable)</strong>
+                            </p>
+                        </div>
+                        <div className="flex flex-row gap-[100px] items-start">
+                            <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'}/>
+                            <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
+                                <FieldGroup className="mx-auto w-56">
+                                    <Field orientation="horizontal" className="flex items-center gap-3"> {/* items-center helps align large text with checkbox */}
+                                        <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
+                                        <FieldLabel htmlFor="terms-checkbox-bassic" className="text-[24px]">
+                                            Scan In
+                                        </FieldLabel>
+                                    </Field>
+                                </FieldGroup>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
