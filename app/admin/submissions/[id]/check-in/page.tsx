@@ -1,6 +1,5 @@
 "use client"
 
-// import mockFormData from "@/lib/mock_form.json";
 import { createClient } from "@/lib/supabase/client";
 import { Suspense } from 'react'
 import {
@@ -185,7 +184,6 @@ function CheckInContent() {
     const { id } = useParams<{ id: string }>()
     const numericId = Number(id)
     const router = useRouter();
-    // const form = mockFormData.find(item => item.id === numericId)
   
     const [form, setForm] = useState<TSubmission | null>(null);
     const [loading, setLoading] = useState(true);
