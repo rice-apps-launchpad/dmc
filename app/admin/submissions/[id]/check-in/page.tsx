@@ -13,10 +13,14 @@ import {
 } from "@/components/ui/combobox";
 import { useParams } from 'next/navigation';
 import { Form } from '@base-ui/react';
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { TSubmission } from "../../page";
 import { Input } from "postcss";
 import { useRouter } from "next/navigation";
+import { UserCheckIcon } from 'lucide-react'
+import { Alert, AlertTitle } from '@/components/ui/alert'
+
 const styles = {
   page: {
     flex: 1,
@@ -110,22 +114,45 @@ type AvailabilityProps = {
     onValueChange: (value: string) => void;
 }
 
-function AvailabilityStatus(props : AvailabilityProps) {
+const AlertIndicatorSuccessDemo = () => {
+  return (
+    <Alert className='flex justify-center rounded-md border-l-6 border-green-600 bg-green-600/10 text-green-600 dark:border-green-400 dark:bg-green-400/10 dark:text-green-400 w-[340px] mt-[20px] text-[18px]'>
+      <AlertTitle className="text-center">Form submitted successfully.</AlertTitle>
+    </Alert>
+  )
+}
+
+const AlertIndicatorMissingDemo = () => {
+  return (
+    <Alert className='flex justify-center rounded-md border-l-6 border-red-600 bg-red-600/10 text-red-600 dark:border-red-400 dark:bg-red-400/10 dark:text-red-400 w-[340px] mt-[20px]'>
+      <AlertTitle className="text-center text-[18px]">Please fill out all fields.</AlertTitle>
+    </Alert>
+  )
+}
+
+function AvailabilityStatus(props: AvailabilityProps) {
+    const handleValueChange = useCallback((val: string | null) => {
+        const newVal = val ?? '';
+        if (newVal !== props.value) {  // ← only call if value actually changed
+            props.onValueChange(newVal);
+        }
+    }, [props.value, props.onValueChange]);
+
     return (
-    <Combobox value={props.value} onValueChange={(val) => props.onValueChange(val ?? '')} items={props.framework}>
-        <ComboboxInput placeholder="Not Selected" style={styles.combobox}/>
-        <ComboboxContent>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
-        <ComboboxList>
-            {(item) => (
-            <ComboboxItem key={item} value={item}>
-                {item}
-            </ComboboxItem>
-            )}
-        </ComboboxList>
-        </ComboboxContent>
-    </Combobox>
-    )
+        <Combobox value={props.value} onValueChange={handleValueChange} items={props.framework}>
+            <ComboboxInput placeholder="Not Selected" style={styles.combobox}/>
+            <ComboboxContent>
+                <ComboboxEmpty>No items found.</ComboboxEmpty>
+                <ComboboxList>
+                    {(item) => (
+                        <ComboboxItem key={item} value={item}>
+                            {item}
+                        </ComboboxItem>
+                    )}
+                </ComboboxList>
+            </ComboboxContent>
+        </Combobox>
+    );
 }
 
 function FormInput(props: FormInputProps) {
@@ -167,14 +194,19 @@ function CheckInContent() {
     const [partsWorking, setPartsWorking] = useState<string>("");
     const [checkinDescription, setCheckinDescription] = useState("");
     const [checkinStaff, setCheckinStaff] = useState("");
+    const [showMissingAlert, setShowMissingAlert] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
     const supabase = createClient();
 
-    const handleEquipmentChange = (index: number, value: string) => {
-        const newResponses = [...equipmentResponses];
-        newResponses[index] = value;
-        setEquipmentResponses(newResponses);
-    };
+    const handleEquipmentChange = useCallback((index: number, value: string) => {
+        setEquipmentResponses(prev => {
+            const newResponses = [...prev];
+            newResponses[index] = value;
+            return newResponses;
+        }); 
+    }, []);
+
     useEffect(() => {
         async function fetchSubmissaion() {
 
@@ -192,8 +224,15 @@ function CheckInContent() {
     }, [id]);
 
     const handleCheckIn = async () => {
+        const unansweredEquipment = equipmentResponses.some(res => res === "");
+        if (unansweredEquipment || partsWorking === "" || checkinStaff.trim() === "") {
+            setShowMissingAlert(true);
+            return;
+        }
+        setShowMissingAlert(false);
+
         setSubmitting(true);
-        
+
         const booleanResponses = equipmentResponses.map(res => res === "Present");
         const partsWorkingBoolean = partsWorking === "Yes";
         const { error } = await supabase
@@ -211,10 +250,12 @@ function CheckInContent() {
             alert("Error updating record: " + error.message);
             setSubmitting(false);
         } else {
-            alert("Successfully Checked In!");
-            router.push("/admin/submissions");
+            setShowMissingAlert(false);
+            setShowSuccessAlert(true);
+            setTimeout(() => {
+                router.push("/admin/submissions");
+            }, 1500);
         }
-            setSubmitting(false);
         };
     return (
         <Suspense>
@@ -244,8 +285,10 @@ function CheckInContent() {
                     </div>
                 </div>
                 <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
-                <div style={styles.bottomSection}>
-                    <button style={styles.button} onClick={handleCheckIn} disabled={submitting}>Submit</button>     
+                <div style={styles.bottomSection} className="flex-col">
+                    {showSuccessAlert && <AlertIndicatorSuccessDemo />}
+                    {showMissingAlert && !showSuccessAlert && <AlertIndicatorMissingDemo />}
+                    <button style={styles.button} onClick={handleCheckIn} disabled={submitting}>Submit</button>
                 </div>
             </div>
         </Suspense>
