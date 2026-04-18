@@ -187,7 +187,7 @@ function CheckInContent() {
                             <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'}/>
                             <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
                                 <FieldGroup className="mx-auto w-56">
-                                    <Field orientation="horizontal" className="flex items-center gap-3"> {/* items-center helps align large text with checkbox */}
+                                    <Field orientation="horizontal" className="flex items-center gap-3">
                                         <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
                                         <FieldLabel htmlFor="terms-checkbox-bassic" className="text-[24px]">
                                             Scan In
