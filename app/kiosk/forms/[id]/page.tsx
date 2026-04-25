@@ -229,7 +229,6 @@ function SuspendedFormPage() {
         form?.equipment_images?.map(async (image: string) => await getImageUrl(image)) ?? []
       );
 
-      console.log(urls);
       setImageUrls(urls);
     }
     fetchImageUrls();

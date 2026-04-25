@@ -1,24 +1,31 @@
+'use client'
+
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { Suspense } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Suspense, useEffect, useState } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { TableRow } from "@/components/TableRow";
 
+type TForm = {
+  id: number,
+  title: string,
+  description: string,
+}
+
 async function formsData() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data } = await supabase.from("forms").select();
   return data;
 }
 
-async function PageContent() {
-    const data = await formsData();
+type Props = {
+    data: TForm[],
+}
 
-    if (data === null)
-        return <p>No forms found.</p>
-
+function PageContent(props: Props) {
     return (
-        data.map((form) => (
+        props.data.map((form) => (
             <TableRow key={form.id}>
                 <div className='flex justify-center items-center h-full'>
                     <div className='mx-[40px] grid grid-cols-[1fr_2fr_250px] items-center gap-4 w-full'>
@@ -41,19 +48,34 @@ async function PageContent() {
 }
 
 export default function Page() {
+    const [data, setData] = useState<TForm[]>([]);
+    const [filteredData, setFilteredData] = useState<TForm[]>([]);
+
+    useEffect(() => {
+        async function getFormsData() {
+            const fetchedData = await formsData();
+            setData(fetchedData as TForm[]);
+            setFilteredData(fetchedData as TForm[]);
+        }
+        getFormsData();
+    }, []);
+
+    function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
+        // "Cast" to lowercase to ignore casing when filtering
+        setFilteredData(data.filter(form => form.title.toLowerCase().includes(e.target.value.toLowerCase())));
+    }
+
     return (
         <div className='flex flex-col gap-[25px]'>
             <div className="mt-[37px]">
-                <SearchBar title='Forms' buttonText={<>+ Add a new form</>} link='/admin/forms/new' />
+                <SearchBar title='Forms' buttonText={<>+ Add a new form</>} link='/admin/forms/new' placeholder="Search by title." searchHandler={handleSearch} />
             </div>
             <div className='flex flex-col !gap-[12px] mx-[47px]'>
                 <div className="grid grid-cols-[1fr_2fr_250px] items-center gap-4 rounded-xl bg-[#1f2a63] text-white px-[70px] py-5 text-sm font-medium">
                     <span><strong>Form Title</strong></span>
                     <span><strong>Description</strong></span>
                 </div>
-                <Suspense>
-                    <PageContent />
-                </Suspense>
+                <PageContent data={filteredData} />
             </div>
         </div>
     );
