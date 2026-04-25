@@ -140,7 +140,7 @@ export default function Page() {
           
         </div>
         <div className="flex flex-col flex-1">
-          <h3 className="text-[25px]  font-bold mb-1 text-[#222D65]">Description</h3>
+          <h3 className="text-[25px]  font-bold mb-1 text-[#222D65]">Subtitle</h3>
           <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add your description here." className="border-2 border-[#222D65] text-[#222D65] font-bold px-4 pt-2 pb-8 rounded-[20px] h-20 text-lg"/>
         
         </div>
@@ -148,7 +148,7 @@ export default function Page() {
 
       {/* Add Equipment */}
       <div className="flex flex-col gap-4 mt-14">
-        <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment</h3>
+        <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment Accessories</h3>
 
         <div className="flex flex-row flex-wrap flex-1">
           {equipList.map((equipment, idx) => (
@@ -163,8 +163,8 @@ export default function Page() {
               className="flex flex-col items-center justify-center border-2 border-dashed border-[#B0B0B0] rounded-[20px] h-[357px] w-[315px] gap-2"
             >
               <span className="text-[20px] font-bold text-[#5C5C5C]">
-                Add a new
-                <span className="block">equipment.</span>
+                Add an
+                <span className="block">accessory.</span>
               </span>
                 <CirclePlus color="grey" size={40} />
             </button>

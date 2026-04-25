@@ -283,13 +283,10 @@ function CheckInContent() {
                     <div style={styles.otherSection}>
                         <div className = "flex flex-col">
                             <FormInput title={"Description (optional)                                        "} 
-                            type={"text"} placeholder={'Enter description here'}/>
-                            <p className="mt-2 text-[18px]">
-                                <strong className="italic">Please remember to format the memory card and charge the battery if less than 70% (if applicable)</strong>
-                            </p>
+                            type={"text"} placeholder={'Enter description here'} onChange={(e) => setCheckinDescription(e.target.value)} />
                         </div>
                         <div className="flex flex-row gap-[100px] items-start">
-                            <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'}/>
+                            <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'} onChange={(e) => setCheckinStaff(e.target.value)} />
                             <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
                                 <FieldGroup className="mx-auto w-56">
                                     <Field orientation="horizontal" className="flex items-center gap-3">
@@ -302,6 +299,9 @@ function CheckInContent() {
                             </div>
                         </div>
                     </div>
+                    <p className="mt-2 text-[18px] self-start">
+                        <strong className="italic">Please remember to format the memory card and charge the battery if less than 70% (if applicable)</strong>
+                    </p>
                 </div>
                 <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
                 <div style={styles.bottomSection} className="flex-col">
