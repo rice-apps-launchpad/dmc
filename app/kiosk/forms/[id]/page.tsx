@@ -3,6 +3,8 @@ import { Suspense, use, useEffect, useState } from 'react'
 import { createClient } from "@/lib/supabase/client";
 import {useRouter} from "next/navigation"
 import { Alert, AlertTitle } from '@/components/ui/alert'
+import { Checkbox } from "@/components/ui/checkbox"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 
 
 async function fetchFormData(id: number) {
@@ -201,6 +203,7 @@ function SuspendedFormPage() {
   const [form, setForm] = useState<TForm>({title: "", description: "", equipment_labels: [], equipment_images: [], category: ""});
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [netId, setNetId] = useState("");
+  const [name, setName] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [staffName, setStaffName] = useState("");
@@ -295,13 +298,35 @@ function SuspendedFormPage() {
                 />
             </div>
             <h1 className=" mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
+            
             <div style={styles.otherSection}>
-              <FormInput title={"NetId"} type={"text"} placeholder={'Add your NetId'} value={netId} onChange={setNetId}/>
-              <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'} value={dueDate} onChange={setDueDate}/>
-              <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'} value={dueTime} onChange={setDueTime}/>
-              <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"} value={staffName} onChange={setStaffName}/>
+              <div className="flex flex-row gap-[40px] text-[30px]">
+                <FormInput title={"Name"} type={"text"} placeholder={'Add your Name'} value={name} onChange={setName}/>
+                <FormInput title={"NetId"} type={"text"} placeholder={'Add your NetId'} value={netId} onChange={setNetId}/>
+              </div>
             </div>
-        </div>
+            <h1 className=" mt-[20px] font-bold text-[24px] mb-[15px]">Staff</h1>
+            <div style={styles.otherSection}>
+              <div className="flex flex-row gap-[40px] text-[30px]">
+                
+                <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'} value={dueDate} onChange={setDueDate}/>
+                <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'} value={dueTime} onChange={setDueTime}/>
+                <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"} value={staffName} onChange={setStaffName}/>
+                <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
+                    <FieldGroup className="mx-auto w-56">
+                        <Field orientation="horizontal" className="flex items-center gap-3"> {/* items-center helps align large text with checkbox */}
+                            <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
+                            <FieldLabel htmlFor="terms-checkbox-bassic" className="text-[24px]">
+                                Scan Out
+                            </FieldLabel>
+                        </Field>
+                    </FieldGroup>
+                </div>
+              </div>
+            </div>
+              
+
+          </div>
         <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
         {clicked &&submitted && (
           <div className="w-[40%] mb-4, mt-4">
