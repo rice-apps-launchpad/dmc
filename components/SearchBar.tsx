@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Link from "next/link";
 import { Search } from 'lucide-react';
 import {
@@ -13,7 +12,9 @@ import '@fontsource/inter';
 type SearchBarProps = {
     title: string,
     buttonText: React.ReactNode,
-    link: string
+    link: string,
+    placeholder: string,
+    searchHandler: React.ChangeEventHandler<HTMLInputElement>,
 }
 
 export function SearchBar(props : SearchBarProps) {
@@ -22,7 +23,7 @@ export function SearchBar(props : SearchBarProps) {
             <p className='text-3xl font-semibold text-[#474747] font-dm-sans'>{props.title}</p>
             <div className='flex flex-row justify-between w-full h-[50px] gap-[10px]'>
                 <InputGroup className='flex-1 h-[100%] !bg-white !rounded-full overflow-hidden'>
-                    <InputGroupInput className="!bg-white !font-inter" placeholder="Search by any xxx."/>
+                    <InputGroupInput className="!bg-white !font-inter" placeholder={props.placeholder} onChange={props.searchHandler} />
                     <InputGroupAddon className="!bg-white">
                         <Search />
                     </InputGroupAddon>

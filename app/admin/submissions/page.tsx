@@ -10,7 +10,7 @@ import {
   CollapsibleTrigger, 
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Play, FileCheckIcon } from "lucide-react";
+import { Play, FileCheckIcon } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { TableRow } from "@/components/TableRow";
 
@@ -42,6 +42,9 @@ export default function Page() {
     // fetch submissions from supabase
     const supabase = createClient();
     const [submissions, setSubmissions] = useState<TSubmission[]>([]);
+    const [groupedByNetID, setGroupedByNetID] = useState<[string, TSubmission[]][]>([]);
+    const [filteredGroupedByNetID, setFilteredGroupByNetID] = useState<[string, TSubmission[]][]>([]);
+
     useEffect(() => {
         const fetchSubmissions = async () => {
             const { data, error } = await supabase.from("submissions").select("*");
@@ -55,14 +58,26 @@ export default function Page() {
     }, []);
 
     // group submissions by netid - CHANGE LATER FOR OTHER GROUPS
-    const groupedByNetID = submissions.reduce((acc: Record<string, TSubmission[]>, submission: TSubmission) => {
-        const netid = submission.netid;
-        if (!acc[netid]) {
-            acc[netid] = [];
-        }
-        acc[netid].push(submission);
-        return acc;
-    }, {});
+    useEffect(() => {
+        const unsortedGroupBy = submissions.reduce((acc: Record<string, TSubmission[]>, submission: TSubmission) => {
+            const netid = submission.netid;
+            if (!acc[netid]) {
+                acc[netid] = [];
+            }
+            acc[netid].push(submission);
+            return acc;
+        }, {});
+
+        const sortedGroupBy = Object.entries(unsortedGroupBy).toSorted((a, b) => a[0].localeCompare(b[0]));
+
+        setGroupedByNetID(sortedGroupBy);
+        setFilteredGroupByNetID(sortedGroupBy);
+    }, [submissions])
+
+    function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
+        // "Cast" to lowercase to ignore casing when searching
+        setFilteredGroupByNetID(groupedByNetID.filter(entry => entry[0].toLowerCase().includes(e.target.value.toLowerCase())));
+    }
 
     const router = useRouter();
 
@@ -84,7 +99,7 @@ export default function Page() {
 
     return (
         <div className='mt-[40px]'>
-            <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>} link='' />
+            <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>} link='' placeholder="Search by NetID." searchHandler={handleSearch} />
             <div className="pl-[47px] pr-[47px] mt-[24px]">
                 <div className="space-y-4">
                     { /* submissions header table */ }
@@ -97,7 +112,7 @@ export default function Page() {
                     </div>
 
                     { /* actual submissions */ }
-                    {Object.entries(groupedByNetID).map(([netid, submissions]) => (
+                    {filteredGroupedByNetID.map(([netid, submissions]) => (
                         <Collapsible key={netid}>
                             <CollapsibleTrigger className={`${rowLayout} w-full group bg-[#e7f0ff] rounded-xl hover:bg-blue-100`}>
                                 <div className="flex items-center justify-self-start px-5 gap-2 font-semibold text-[#222d65]">
