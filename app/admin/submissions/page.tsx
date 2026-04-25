@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 // collapsible component
 import {
   Collapsible,
@@ -15,7 +16,7 @@ import { TableRow } from "@/components/TableRow";
 
 const rowLayout = "grid grid-cols-5 items-center justify-items-center gap-x-6 px-6 py-3";
 
-type TSubmission = {
+export type TSubmission = {
     id: number;
     created_at: string;
     updated_at: string;
@@ -63,7 +64,9 @@ export default function Page() {
         return acc;
     }, {});
 
-    const checkedOut: React.ReactNode = (
+    const router = useRouter();
+
+    const checkedOut = (id: number): React.ReactNode => (
         <span className="flex items-center gap-2 text-purple-600 font-semibold">
             Checked Out
           <Button
@@ -71,6 +74,7 @@ export default function Page() {
                 size="icon"
                 title="Check In"
                 className="h-6 w-6 text-purple-600 hover:!text-purple-600"
+                onClick={() => router.push(`/admin/submissions/${id}/check-in`)}
             >
                 <FileCheckIcon className="h-4 w-4" />
             </Button>
@@ -118,7 +122,7 @@ export default function Page() {
                                                 : " text-purple-600 whitespace-nowrap font-semibold")
                                             }
                                         >
-                                            {s.status === "Checked In" ? s.status: checkedOut}
+                                            {s.status === "Checked In" ? s.status: checkedOut(s.id)}
                                         </span>
                                     </div>
                                 </TableRow>
