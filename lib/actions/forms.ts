@@ -19,6 +19,12 @@ export async function createForm(input: NewFormInput): Promise<number> {
   return Number(form.id);
 }
 
+export async function updateForm(id: number, input: NewFormInput): Promise<void> {
+  await prisma.form.update({ where: { id }, data: input });
+  revalidatePath("/admin/forms");
+  revalidatePath("/kiosk");
+}
+
 export async function getForms(): Promise<{ id: number; category: string; title: string; description: string }[]> {
   const forms = await prisma.form.findMany({
     select: { id: true, category: true, title: true, description: true },
