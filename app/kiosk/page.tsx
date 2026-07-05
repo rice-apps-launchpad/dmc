@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { getForms } from "@/lib/actions/forms";
 
 import Navbar from "@/components/navbar";
 import {
@@ -73,7 +73,7 @@ const styles = {
     combobox: {
       width: "700px"
     }
-    
+
 } as const;
 
 type TTitle = {
@@ -89,15 +89,13 @@ export function ComboboxWithGroupsAndSeparator({
   setSelectedTitle: React.Dispatch<React.SetStateAction<TTitle['id'] | null>>;
 }) {
   // fetch titles
-  const supabase = createClient();
   const [titles, setTitles] = useState<TTitle[]>([]);
   useEffect(() => {
       const fetchTitles = async () => {
-          const { data, error } = await supabase.from("forms").select("id, category, title, description");
-          if (error) {
+          try {
+              setTitles(await getForms());
+          } catch (error) {
               console.error("Error fetching titles:", error);
-          } else {
-              setTitles(data);
           }
       };
       fetchTitles();
@@ -111,10 +109,10 @@ export function ComboboxWithGroupsAndSeparator({
     acc[title.category].push(title);
     return acc;
   }, {});
-  
+
   return (
-    <Combobox items={titles} 
-              itemToStringLabel={(title: TTitle) => title.description} 
+    <Combobox items={titles}
+              itemToStringLabel={(title: TTitle) => title.description}
               onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>

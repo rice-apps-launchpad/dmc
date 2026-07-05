@@ -1,6 +1,7 @@
 'use client'
 import { Suspense, use, useEffect, useState } from 'react'
-import { createClient } from "@/lib/supabase/client";
+import { getForm } from "@/lib/actions/forms";
+import { createSubmission } from "@/lib/actions/submissions";
 import { getImageUrl } from "@/lib/storage/client";
 import {useRouter} from "next/navigation"
 import { Alert, AlertTitle } from '@/components/ui/alert'
@@ -9,9 +10,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 
 
 async function fetchFormData(id: number) {
-  const supabase = createClient();
-  const {data: formData} = await supabase.from("forms").select().eq("id", id).single()
-  return formData
+  return await getForm(id);
 }
 
 import mockFormData from "@/lib/mock_form.json"
@@ -213,10 +212,12 @@ function SuspendedFormPage() {
 
   useEffect(() => {
     async function getFormData() {
-      
+
       const data = await fetchFormData(numericId);
-      setForm(data);
-      setEquipmentStatuses(new Array(data.equipment_labels.length).fill(""));
+      if (data) {
+        setForm(data);
+        setEquipmentStatuses(new Array(data.equipment_labels.length).fill(""));
+      }
     }
     getFormData();
   }, [setForm, fetchFormData, numericId])
@@ -238,30 +239,27 @@ function SuspendedFormPage() {
   }
   setMissingFields(false);
 
-  const supabase = createClient();
-  const { error } = await supabase.from("submissions").insert({
-    netid: netId,
-    due_date: dueDate,
-    due_time: dueTime,
-    checkout_staff: staffName,
-    checkout_responses: equipmentStatuses.map(s => s === "Present"),
-    title: form.title,
-    equipment_labels: form.equipment_labels,
-    equipment_images: form.equipment_images,
-    category: form.category,
-    description: form.description,
-    status: "Checked Out",
-  });
+  try {
+    await createSubmission({
+      netid: netId,
+      dueDate: dueDate,
+      dueTime: dueTime,
+      checkoutStaff: staffName,
+      checkoutResponses: equipmentStatuses.map(s => s === "Present"),
+      title: form.title,
+      equipmentLabels: form.equipment_labels,
+      equipmentImages: form.equipment_images,
+      category: form.category,
+      description: form.description,
+    });
 
-  if (error) {
+    setSubmitted(true);
+    setTimeout(() => router.push("/kiosk"), 2000);
+  } catch (error) {
     console.log("Error submitting form:", error);
     setInternalError(true);
     setSubmitted(false);
     buttonElement.disabled = false;
-
-  } else {
-    setSubmitted(true);
-    setTimeout(() => router.push("/kiosk"), 2000);
   }}
   return (
     <div style={styles.page}>
@@ -286,7 +284,7 @@ function SuspendedFormPage() {
                 />
             </div>
             <h1 className=" mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
-            
+
             <div style={styles.otherSection}>
               <div className="flex flex-row gap-[40px] text-[30px]">
                 <FormInput title={"Name"} type={"text"} placeholder={'Add your Name'} value={name} onChange={setName}/>
@@ -296,11 +294,11 @@ function SuspendedFormPage() {
             <h1 className=" mt-[20px] font-bold text-[24px] mb-[15px]">Staff</h1>
             <div style={styles.otherSection}>
               <div className="flex flex-row gap-[40px] text-[30px]">
-                
+
                 <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'} value={dueDate} onChange={setDueDate}/>
                 <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'} value={dueTime} onChange={setDueTime}/>
                 <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"} value={staffName} onChange={setStaffName}/>
-                <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
+                <div className="flex flex-col mt-[44px] h-[50px] justify-center">
                     <FieldGroup className="mx-auto w-56">
                         <Field orientation="horizontal" className="flex items-center gap-3"> {/* items-center helps align large text with checkbox */}
                             <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
@@ -312,7 +310,7 @@ function SuspendedFormPage() {
                 </div>
               </div>
             </div>
-              
+
 
           </div>
         <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>

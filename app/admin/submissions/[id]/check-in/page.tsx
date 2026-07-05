@@ -2,7 +2,7 @@
 
 import mockFormData from "@/lib/mock_submissions.json";
 import { Checkbox } from "@/components/ui/checkbox"
-import { createClient } from "@/lib/supabase/client";
+import { getSubmission, checkInSubmission } from "@/lib/actions/submissions";
 import { getImageUrl } from "@/lib/storage/client";
 import { Suspense } from 'react'
 import {
@@ -20,7 +20,6 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 // import { useEffect, useState } from "react";
 import { useEffect, useState, useCallback, memo } from "react";
 import { TSubmission } from "../../page";
-import { Input } from "postcss";
 import { useRouter } from "next/navigation";
 import { UserCheckIcon } from 'lucide-react'
 import { Alert, AlertTitle } from '@/components/ui/alert'
@@ -119,19 +118,19 @@ type AvailabilityProps = {
 }
 
 const AlertIndicatorSuccessDemo = () => {
-  return (
-    <Alert className='flex justify-center rounded-md border-l-6 border-green-600 bg-green-600/10 text-green-600 dark:border-green-400 dark:bg-green-400/10 dark:text-green-400 w-[340px] mt-[20px] text-[18px]'>
-      <AlertTitle className="text-center">Form submitted successfully.</AlertTitle>
-    </Alert>
-  )
+  return (
+    <Alert className='flex justify-center rounded-md border-l-6 border-green-600 bg-green-600/10 text-green-600 dark:border-green-400 dark:bg-green-400/10 dark:text-green-400 w-[340px] mt-[20px] text-[18px]'>
+      <AlertTitle className="text-center">Form submitted successfully.</AlertTitle>
+    </Alert>
+  )
 }
 
 const AlertIndicatorMissingDemo = () => {
-  return (
-    <Alert className='flex justify-center rounded-md border-l-6 border-red-600 bg-red-600/10 text-red-600 dark:border-red-400 dark:bg-red-400/10 dark:text-red-400 w-[340px] mt-[20px]'>
-      <AlertTitle className="text-center text-[18px]">Please fill out all fields.</AlertTitle>
-    </Alert>
-  )
+  return (
+    <Alert className='flex justify-center rounded-md border-l-6 border-red-600 bg-red-600/10 text-red-600 dark:border-red-400 dark:bg-red-400/10 dark:text-red-400 w-[340px] mt-[20px]'>
+      <AlertTitle className="text-center text-[18px]">Please fill out all fields.</AlertTitle>
+    </Alert>
+  )
 }
 
 function AvailabilityStatus(props: AvailabilityProps) {
@@ -188,7 +187,7 @@ function EquipmentList({label, image, responses, onResponseChange}: EquipmentPro
 function CheckInContent() {
     const { id } = useParams<{ id: string }>()
     const router = useRouter();
-  
+
     const [form, setForm] = useState<TSubmission | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [equipmentResponses, setEquipmentResponses] = useState<string[]>([]);
@@ -199,14 +198,12 @@ function CheckInContent() {
     const [showMissingAlert, setShowMissingAlert] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
-    const supabase = createClient();
-
     const handleEquipmentChange = useCallback((index: number, value: string) => {
         setEquipmentResponses(prev => {
             const newResponses = [...prev];
             newResponses[index] = value;
             return newResponses;
-        }); 
+        });
     }, []);
 
     useEffect(() => {
@@ -216,14 +213,12 @@ function CheckInContent() {
     useEffect(() => {
         async function fetchSubmissaion() {
 
-            const { data } = await supabase
-                .from("submissions").select("*")
-                .eq("id", id).single();
+            const data = await getSubmission(Number(id));
             if (data){
                 setForm(data);
                 setEquipmentResponses(new Array(data.equipment_labels.length).fill(""));
             }
-            
+
         }
 
         fetchSubmissaion();
@@ -241,26 +236,22 @@ function CheckInContent() {
 
         const booleanResponses = equipmentResponses.map(res => res === "Present");
         const partsWorkingBoolean = partsWorking === "Yes";
-        const { error } = await supabase
-            .from("submissions")
-            .update({
-                checkin_responses: booleanResponses, 
-                checkin_staff: checkinStaff,
-                checkin_description: checkinDescription,
-                parts_working: partsWorkingBoolean,
-                status: "Checked In", // Update the status
-         })
-            .eq("id", id);
+        try {
+            await checkInSubmission(Number(id), {
+                checkinResponses: booleanResponses,
+                checkinStaff: checkinStaff,
+                checkinDescription: checkinDescription,
+                partsWorking: partsWorkingBoolean,
+            });
 
-        if (error) {
-            alert("Error updating record: " + error.message);
-            setSubmitting(false);
-        } else {
             setShowMissingAlert(false);
             setShowSuccessAlert(true);
             setTimeout(() => {
                 router.push("/admin/submissions");
             }, 1500);
+        } catch (error) {
+            alert("Error updating record: " + (error instanceof Error ? error.message : String(error)));
+            setSubmitting(false);
         }
         };
     return (
@@ -286,12 +277,12 @@ function CheckInContent() {
                     <h1 className="mt-[65px] font-bold text-[24px] mb-[15px]">Notes</h1>
                     <div style={styles.otherSection}>
                         <div className = "flex flex-col">
-                            <FormInput title={"Description (optional)                                        "} 
+                            <FormInput title={"Description (optional)                                        "}
                             type={"text"} placeholder={'Enter description here'} onChange={(e) => setCheckinDescription(e.target.value)} />
                         </div>
                         <div className="flex flex-row gap-[100px] items-start">
                             <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={'Add DMC Member\'s name'} onChange={(e) => setCheckinStaff(e.target.value)} />
-                            <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
+                            <div className="flex flex-col mt-[44px] h-[50px] justify-center">
                                 <FieldGroup className="mx-auto w-56">
                                     <Field orientation="horizontal" className="flex items-center gap-3">
                                         <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
