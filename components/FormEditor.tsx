@@ -34,14 +34,14 @@ function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
   };
 
   return (
-    <div className="flex flex-col items-left rounded-lg gap-4 h-[355px] w-[337px] ">
-      <div className="relative w-[315px] flex-1 pt-[19px] pb-[19px] pr-[21px] pl-[21px] border-2 border-[#222D65] rounded-[20px] ">
+    <div className="flex flex-col items-left gap-6 w-[315px]">
+      <div className="relative h-[355px] pt-[19px] pb-[19px] pr-[21px] pl-[21px] border-2 border-[#222D65] rounded-[20px]">
         {item.image && (
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-full object-cover rounded-md"
-            />
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-full h-full object-contain rounded-md"
+          />
         )}
 
         <Button
@@ -49,14 +49,13 @@ function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
           onClick={handleDelete}
         ><X color="white" size={30} /></Button>
       </div>
-
-        <input
-            type="text"
-            className="font-regular text-[#222D65] border-2 border-[#222D65] bg-white w-[315px] h-[86px] p-2 rounded-[20px] text-center"
-            placeholder="Add your label of the equipment."
-            value={item.name || ""}
-            onChange={(e) => handleNameChange(e.target.value)}
-        />
+      <input
+        type="text"
+        className="font-regular text-[#222D65] border-2 border-[#222D65] bg-white w-full h-[56px] p-2 rounded-[20px] text-center"
+        placeholder="Add your label of the equipment."
+        value={item.name || ""}
+        onChange={(e) => handleNameChange(e.target.value)}
+      /> 
     </div>
   );
 }
@@ -163,7 +162,7 @@ export function FormEditor({ heading, initial, onSave }: {
       <div className="flex flex-col gap-4 mt-14">
         <h3 className="text-[25px] font-bold mb-1 text-[#222D65]">Add Equipment Accessories</h3>
 
-        <div className="flex flex-row flex-wrap flex-1">
+        <div className="flex flex-row flex-wrap flex-1 gap-6">
           {equipList.map((equipment, idx) => (
             <EquipmentComponent key={idx} index={idx} item={equipment} setEquipList={setEquipList} />
           ))}
