@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Form {
+  id              BigInt   @id @default(autoincrement())
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category        String   @default("")
+  title           String   @default("")
+  description     String   @default("")
+  equipmentLabels String[] @default([]) @map("equipment_labels")
+  equipmentImages String[] @default([]) @map("equipment_images")
+
+  @@map("forms")
+}
+
+model Submission {
+  id                 BigInt    @id @default(autoincrement())
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  netid              String?
+  title              String?
+  category           String?
+  description        String?
+  equipmentImages    String[]  @map("equipment_images")
+  equipmentLabels    String[]  @map("equipment_labels")
+  checkoutResponses  String[]  @map("checkout_responses")
+  dueDate            DateTime? @map("due_date") @db.Date
+  dueTime            DateTime? @map("due_time") @db.Timetz(6)
+  checkoutStaff      String?   @map("checkout_staff")
+  checkinResponses   String[]  @map("checkin_responses")
+  checkinStaff       String?   @map("checkin_staff")
+  partsWorking       Boolean?  @map("parts_working")
+  checkinDescription String?   @map("checkin_description")
+  status             String
+
+  @@map("submissions")
+}
