@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { getForms } from "@/lib/actions/forms";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { TableRow } from "@/components/TableRow";

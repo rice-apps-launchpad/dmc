@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, use, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { getForm } from "@/lib/actions/forms";
 import { createSubmission } from "@/lib/actions/submissions";
 import { getImageUrl } from "@/lib/storage/client";
@@ -13,7 +13,6 @@ async function fetchFormData(id: number) {
   return await getForm(id);
 }
 
-import mockFormData from "@/lib/mock_form.json"
 import {
   Combobox,
   ComboboxContent,
@@ -23,7 +22,6 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 import { useParams } from 'next/navigation'
-import { Form } from '@base-ui/react'
 
 const styles = {
   page: {

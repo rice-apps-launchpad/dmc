@@ -1,6 +1,5 @@
 "use client"
 
-import mockFormData from "@/lib/mock_submissions.json";
 import { Checkbox } from "@/components/ui/checkbox"
 import { getSubmission, checkInSubmission } from "@/lib/actions/submissions";
 import { getImageUrl } from "@/lib/storage/client";
@@ -14,14 +13,11 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import { useParams } from 'next/navigation';
-import { Form } from '@base-ui/react';
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 
-// import { useEffect, useState } from "react";
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { TSubmission } from "../../page";
 import { useRouter } from "next/navigation";
-import { UserCheckIcon } from 'lucide-react'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 
 const styles = {
