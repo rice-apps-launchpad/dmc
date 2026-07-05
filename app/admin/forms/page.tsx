@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { getForms } from "@/lib/actions/forms";
 import { Suspense, useEffect, useState } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,7 @@ type TForm = {
 }
 
 async function formsData() {
-  const supabase = createClient();
-  const { data } = await supabase.from("forms").select();
-  return data;
+  return await getForms();
 }
 
 type Props = {

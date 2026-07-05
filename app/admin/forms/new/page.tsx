@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { createClient } from '@supabase/supabase-js'
+import { createForm } from '@/lib/actions/forms';
 import { Input } from "@/components/ui/input";
 // import Image from 'next/image';
 import { useState, useRef, ChangeEvent } from 'react';
@@ -86,8 +86,6 @@ export default function Page() {
   };
 
   const handleSubmit = async () => {
-    
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!);
 
     const uploadResults = await Promise.all(
       equipList.map(async (equip, index) => {
@@ -100,21 +98,17 @@ export default function Page() {
     );
 
     // Insert one row with all labels and image paths
-    const { data: insertData, error: insertError } = await supabase
-      .from("forms")
-      .insert([{
+    try {
+      await createForm({
         title,
         category,
         description,
-        equipment_labels: equipList.map((e) => e.name),
-        equipment_images: uploadResults,
-    }]);
-
-    if (insertError) {
-      console.error("Insert failed:", insertError.message);
-    } else {
-      console.log("Submitted!", insertData);
+        equipmentLabels: equipList.map((e) => e.name ?? ""),
+        equipmentImages: uploadResults,
+      });
       router.push("/admin/forms");
+    } catch (error) {
+      console.error("Insert failed:", error instanceof Error ? error.message : error);
     }
   };
 

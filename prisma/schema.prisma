@@ -34,11 +34,11 @@ model Submission {
   description        String?
   equipmentImages    String[]  @map("equipment_images")
   equipmentLabels    String[]  @map("equipment_labels")
-  checkoutResponses  String[]  @map("checkout_responses")
+  checkoutResponses  Boolean[] @map("checkout_responses")
   dueDate            DateTime? @map("due_date") @db.Date
   dueTime            DateTime? @map("due_time") @db.Timetz(6)
   checkoutStaff      String?   @map("checkout_staff")
-  checkinResponses   String[]  @map("checkin_responses")
+  checkinResponses   Boolean[] @map("checkin_responses")
   checkinStaff       String?   @map("checkin_staff")
   partsWorking       Boolean?  @map("parts_working")
   checkinDescription String?   @map("checkin_description")

@@ -1,13 +1,13 @@
 "use client"
 
-import { createClient } from "@/lib/supabase/client";
+import { getSubmissions } from "@/lib/actions/submissions";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 // collapsible component
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger, 
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Play, FileCheckIcon } from "lucide-react";
@@ -39,19 +39,17 @@ export type TSubmission = {
 
 
 export default function Page() {
-    // fetch submissions from supabase
-    const supabase = createClient();
+    // fetch submissions from the database
     const [submissions, setSubmissions] = useState<TSubmission[]>([]);
     const [groupedByNetID, setGroupedByNetID] = useState<[string, TSubmission[]][]>([]);
     const [filteredGroupedByNetID, setFilteredGroupByNetID] = useState<[string, TSubmission[]][]>([]);
 
     useEffect(() => {
         const fetchSubmissions = async () => {
-            const { data, error } = await supabase.from("submissions").select("*");
-            if (error) {
+            try {
+                setSubmissions(await getSubmissions());
+            } catch (error) {
                 console.error("Error fetching submissions:", error);
-            } else {
-                setSubmissions(data);
             }
         };
         fetchSubmissions();
