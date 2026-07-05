@@ -1,6 +1,7 @@
 'use client'
 import { Suspense, use, useEffect, useState } from 'react'
 import { createClient } from "@/lib/supabase/client";
+import { getImageUrl } from "@/lib/storage/client";
 import {useRouter} from "next/navigation"
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,12 +12,6 @@ async function fetchFormData(id: number) {
   const supabase = createClient();
   const {data: formData} = await supabase.from("forms").select().eq("id", id).single()
   return formData
-}
-
-async function getImageUrl(path: string) {
-  const supabase = createClient();
-  const { data } = await supabase.storage.from("equipment_images").getPublicUrl(path);
-  return data.publicUrl
 }
 
 import mockFormData from "@/lib/mock_form.json"
@@ -227,15 +222,8 @@ function SuspendedFormPage() {
   }, [setForm, fetchFormData, numericId])
 
   useEffect(() => {
-    async function fetchImageUrls() {
-      const urls = await Promise.all(
-        form?.equipment_images?.map(async (image: string) => await getImageUrl(image)) ?? []
-      );
-
-      setImageUrls(urls);
-    }
-    fetchImageUrls();
-  }, [form?.equipment_images, setImageUrls, getImageUrl]) 
+    setImageUrls(form?.equipment_images?.map((image: string) => getImageUrl(image)) ?? []);
+  }, [form?.equipment_images, setImageUrls])
 
   async function handleSubmit(buttonElement: HTMLButtonElement) {
   setClicked(true);

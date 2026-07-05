@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useRef, ChangeEvent } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
-import {v4 as uuidv4} from 'uuid';
+import { uploadImage } from '@/lib/storage/client';
 import { useRouter } from "next/navigation";
 
 type Equipment = {
@@ -91,12 +91,11 @@ export default function Page() {
 
     const uploadResults = await Promise.all(
       equipList.map(async (equip, index) => {
-        const { data, error } = await supabase.storage
-        .from("equipment_images")
-        .upload(uuidv4(), equip.file);
-
-        if (error) throw new Error(`Upload failed for image ${index}: ${error.message}`);
-        return data.path; // collect the path of each uploaded image
+        try {
+          return await uploadImage(equip.file); // collect the key of each uploaded image
+        } catch (error) {
+          throw new Error(`Upload failed for image ${index}: ${error instanceof Error ? error.message : String(error)}`);
+        }
       })
     );
 

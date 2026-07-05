@@ -3,6 +3,7 @@
 import mockFormData from "@/lib/mock_submissions.json";
 import { Checkbox } from "@/components/ui/checkbox"
 import { createClient } from "@/lib/supabase/client";
+import { getImageUrl } from "@/lib/storage/client";
 import { Suspense } from 'react'
 import {
   Combobox,
@@ -117,12 +118,6 @@ type AvailabilityProps = {
     onValueChange: (value: string) => void;
 }
 
-async function getImageUrl(path: string) {
-  const supabase = createClient();
-  const { data } = await supabase.storage.from("equipment_images").getPublicUrl(path);
-  return data.publicUrl
-}
-
 const AlertIndicatorSuccessDemo = () => {
   return (
     <Alert className='flex justify-center rounded-md border-l-6 border-green-600 bg-green-600/10 text-green-600 dark:border-green-400 dark:bg-green-400/10 dark:text-green-400 w-[340px] mt-[20px] text-[18px]'>
@@ -215,15 +210,8 @@ function CheckInContent() {
     }, []);
 
     useEffect(() => {
-        async function fetchImageUrls() {
-        const urls = await Promise.all(
-            form?.equipment_images?.map(async (image: string) => await getImageUrl(image)) ?? []
-        );
-
-        setImageUrls(urls);
-        }
-        fetchImageUrls();
-    }, [form?.equipment_images, setImageUrls, getImageUrl]) 
+        setImageUrls(form?.equipment_images?.map((image: string) => getImageUrl(image)) ?? []);
+    }, [form?.equipment_images, setImageUrls])
 
     useEffect(() => {
         async function fetchSubmissaion() {
