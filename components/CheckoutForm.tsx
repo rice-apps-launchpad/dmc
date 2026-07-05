@@ -205,6 +205,9 @@ export function CheckoutForm({ form, onSubmit }: {
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [staffName, setStaffName] = useState("");
+  // Not stored in the database — required purely so staff confirm the
+  // equipment was actually scanned out before submitting.
+  const [scannedOut, setScannedOut] = useState(false);
   const [equipmentStatuses, setEquipmentStatuses] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [clicked, setClicked] = useState(false);
@@ -222,7 +225,7 @@ export function CheckoutForm({ form, onSubmit }: {
   setClicked(true);
   buttonElement.disabled = true;
 
-  if (!netId || !dueDate || !dueTime || !staffName || equipmentStatuses.includes("")) {
+  if (!netId || !name || !dueDate || !dueTime || !staffName || !scannedOut || equipmentStatuses.includes("")) {
     setMissingFields(true);
     setInternalError(false);
     setSubmitted(false);
@@ -281,7 +284,7 @@ export function CheckoutForm({ form, onSubmit }: {
                 <div className="flex flex-col mt-[44px] h-[50px] justify-center">
                     <FieldGroup className="mx-auto w-56">
                         <Field orientation="horizontal" className="flex items-center gap-3"> {/* items-center helps align large text with checkbox */}
-                            <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
+                            <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]" checked={scannedOut} onCheckedChange={(checked) => setScannedOut(checked === true)}/>
                             <FieldLabel htmlFor="terms-checkbox-bassic" className="text-[24px]">
                                 Scan Out
                             </FieldLabel>

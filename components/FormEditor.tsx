@@ -6,6 +6,7 @@ import { useState, useRef, ChangeEvent } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
 import { uploadImage, getImageUrl } from '@/lib/storage/client';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import type { NewFormInput } from '@/lib/actions/forms';
 
 type Equipment = {
@@ -84,6 +85,7 @@ export function FormEditor({ heading, initial, onSave }: {
   const [title, setTitle] = useState(initial?.title ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [category, setCategory] = useState(initial?.category ?? '');
+  const [missingFields, setMissingFields] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,6 +104,13 @@ export function FormEditor({ heading, initial, onSave }: {
   };
 
   const handleSubmit = async () => {
+    // Accessories themselves are optional, but every field that is present —
+    // including the label of any added accessory — must be filled out.
+    if (!title.trim() || !category.trim() || !description.trim() || equipList.some((e) => !e.name?.trim())) {
+      setMissingFields(true);
+      return;
+    }
+    setMissingFields(false);
 
     const uploadResults = await Promise.all(
       equipList.map(async (equip, index) => {
@@ -177,13 +186,16 @@ export function FormEditor({ heading, initial, onSave }: {
       </div>
 
       {/* Submit Button */}
-      {equipList.length > 0 && (
-        <div className="flex justify-end mt-10">
-          <Button
-            style={{ backgroundColor: "#E7F0FF", height: "50px", width: "120px", border: "2px solid #222D65", color: "#222D65", }}
-            onClick={handleSubmit}>Submit</Button>
-        </div>
-      )}
+      <div className="flex justify-end items-center gap-4 mt-10">
+        {missingFields && (
+          <Alert className='w-fit rounded-md border-l-6 border-red-600 bg-red-600/10 text-red-600 dark:border-red-400 dark:bg-red-400/10 dark:text-red-400'>
+            <AlertTitle className="text-center">Please fill out all fields.</AlertTitle>
+          </Alert>
+        )}
+        <Button
+          style={{ backgroundColor: "#E7F0FF", height: "50px", width: "120px", border: "2px solid #222D65", color: "#222D65", }}
+          onClick={handleSubmit}>Submit</Button>
+      </div>
     </div>
   );
 }

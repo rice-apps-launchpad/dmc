@@ -191,6 +191,9 @@ function CheckInContent() {
     const [partsWorking, setPartsWorking] = useState<string>("");
     const [checkinDescription, setCheckinDescription] = useState("");
     const [checkinStaff, setCheckinStaff] = useState("");
+    // Not stored in the database — required purely so staff confirm the
+    // equipment was actually scanned in before submitting.
+    const [scannedIn, setScannedIn] = useState(false);
     const [showMissingAlert, setShowMissingAlert] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
@@ -222,7 +225,7 @@ function CheckInContent() {
 
     const handleCheckIn = async () => {
         const unansweredEquipment = equipmentResponses.some(res => res === "");
-        if (unansweredEquipment || partsWorking === "" || checkinStaff.trim() === "") {
+        if (unansweredEquipment || partsWorking === "" || checkinStaff.trim() === "" || !scannedIn) {
             setShowMissingAlert(true);
             return;
         }
@@ -281,7 +284,7 @@ function CheckInContent() {
                             <div className="flex flex-col mt-[44px] h-[50px] justify-center">
                                 <FieldGroup className="mx-auto w-56">
                                     <Field orientation="horizontal" className="flex items-center gap-3">
-                                        <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
+                                        <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]" checked={scannedIn} onCheckedChange={(checked) => setScannedIn(checked === true)}/>
                                         <FieldLabel htmlFor="terms-checkbox-bassic" className="text-[24px]">
                                             Scan In
                                         </FieldLabel>
