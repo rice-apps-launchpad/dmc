@@ -1,7 +1,5 @@
-import Navbar from "@/components/navbar";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-    return <div>
-
-    </div>
+    redirect("/admin/submissions");
 }
