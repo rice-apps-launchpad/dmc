@@ -2,15 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useRef, ChangeEvent } from 'react';
+import { Suspense, useState, useRef, useEffect, ChangeEvent } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 type Equipment = {
   name?: string;
   image: string;
-  file: File
+  file?: File;
 };
 
 type EquipmentProps = {
@@ -58,7 +58,8 @@ function EquipmentComponent({ item, index, setEquipList }: EquipmentProps) {
   );
 }
 
-export default function Page() {
+function PageContent() {
+  const { id } = useParams<{ id: string }>();
   const [equipList, setEquipList] = useState<Equipment[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -67,6 +68,24 @@ export default function Page() {
   const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    async function getForm() {
+      const res = await fetch(`/api/forms/${id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setTitle(data.title);
+      setDescription(data.description);
+      setCategory(data.category);
+      setEquipList(
+        (data.equipment_labels as string[]).map((name, i) => ({
+          name,
+          image: data.equipment_images[i] ?? '',
+        }))
+      );
+    }
+    getForm();
+  }, [id]);
 
   const openFilePicker = () => {
     fileInputRef.current?.click();
@@ -84,6 +103,7 @@ export default function Page() {
   const handleSubmit = async () => {
     const uploadResults = await Promise.all(
       equipList.map(async (equip, index) => {
+        if (!equip.file) return equip.image;
         const formData = new FormData();
         formData.append('file', equip.file);
         const res = await fetch('/api/upload', { method: 'POST', body: formData });
@@ -93,8 +113,8 @@ export default function Page() {
       })
     );
 
-    const res = await fetch('/api/forms', {
-      method: 'POST',
+    const res = await fetch(`/api/forms/${id}`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title,
@@ -106,7 +126,7 @@ export default function Page() {
     });
 
     if (!res.ok) {
-      console.error("Insert failed:", await res.text());
+      console.error("Update failed:", await res.text());
     } else {
       router.push("/admin/forms");
     }
@@ -114,7 +134,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col h-full p-8 pl-12">
-      <h1 className="text-[32px] font-bold mb-4 text-[#474747]">New Form</h1>
+      <h1 className="text-[32px] font-bold mb-4 text-[#474747]">Edit Form</h1>
 
       {/* Category */}
 
@@ -170,9 +190,17 @@ export default function Page() {
         <div className="flex justify-end mt-10">
           <Button
             style={{ backgroundColor: "#E7F0FF", height: "50px", width: "120px", border: "2px solid #222D65", color: "#222D65", }}
-            onClick={handleSubmit}>Submit</Button>
+            onClick={handleSubmit}>Save</Button>
         </div>
       )}
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <PageContent />
+    </Suspense>
   );
 }

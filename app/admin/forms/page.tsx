@@ -1,7 +1,6 @@
 'use client'
 
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { Suspense, useEffect, useState } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
@@ -13,14 +12,14 @@ type TForm = {
   description: string,
 }
 
-async function formsData() {
-  const supabase = createClient();
-  const { data } = await supabase.from("forms").select();
-  return data;
+async function formsData(): Promise<TForm[]> {
+  const res = await fetch('/api/forms')
+  return res.json()
 }
 
 type Props = {
     data: TForm[],
+    onDelete: (id: number) => void,
 }
 
 function PageContent(props: Props) {
@@ -38,7 +37,7 @@ function PageContent(props: Props) {
                             <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !rounded-xl !px-[18px] !py-[5px]' asChild>
                                 <Link href={`forms/${form.id}/edit`}>Edit</Link>
                             </Button>
-                            <Button variant='outline' className='!bg-white !border-[#B20000] !font-inter !font-[400] !text-[#B20000] !rounded-xl !px-[18px] !py-[5px]'>Delete</Button>
+                            <Button variant='outline' className='!bg-white !border-[#B20000] !font-inter !font-[400] !text-[#B20000] !rounded-xl !px-[18px] !py-[5px]' onClick={() => props.onDelete(form.id)}>Delete</Button>
                         </div>
                     </div>
                 </div>
@@ -54,15 +53,25 @@ export default function Page() {
     useEffect(() => {
         async function getFormsData() {
             const fetchedData = await formsData();
-            setData(fetchedData as TForm[]);
-            setFilteredData(fetchedData as TForm[]);
+            setData(fetchedData);
+            setFilteredData(fetchedData);
         }
         getFormsData();
     }, []);
 
     function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
-        // "Cast" to lowercase to ignore casing when filtering
         setFilteredData(data.filter(form => form.title.toLowerCase().includes(e.target.value.toLowerCase())));
+    }
+
+    async function handleDelete(id: number) {
+        if (!confirm("Delete this form?")) return;
+        const res = await fetch(`/api/forms/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+            console.error("Delete failed:", await res.text());
+            return;
+        }
+        setData(prev => prev.filter(form => form.id !== id));
+        setFilteredData(prev => prev.filter(form => form.id !== id));
     }
 
     return (
@@ -75,7 +84,7 @@ export default function Page() {
                     <span><strong>Form Title</strong></span>
                     <span><strong>Description</strong></span>
                 </div>
-                <PageContent data={filteredData} />
+                <PageContent data={filteredData} onDelete={handleDelete} />
             </div>
         </div>
     );

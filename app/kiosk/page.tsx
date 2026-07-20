@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 
 import Navbar from "@/components/navbar";
 import {
@@ -73,7 +72,7 @@ const styles = {
     combobox: {
       width: "700px"
     }
-    
+
 } as const;
 
 type TTitle = {
@@ -88,22 +87,20 @@ export function ComboboxWithGroupsAndSeparator({
 }: {
   setSelectedTitle: React.Dispatch<React.SetStateAction<TTitle['id'] | null>>;
 }) {
-  // fetch titles
-  const supabase = createClient();
   const [titles, setTitles] = useState<TTitle[]>([]);
   useEffect(() => {
       const fetchTitles = async () => {
-          const { data, error } = await supabase.from("forms").select("id, category, title, description");
-          if (error) {
-              console.error("Error fetching titles:", error);
-          } else {
-              setTitles(data);
+          const res = await fetch('/api/forms');
+          if (!res.ok) {
+              console.error("Error fetching titles");
+              return;
           }
+          const data: TTitle[] = await res.json();
+          setTitles(data);
       };
       fetchTitles();
   }, []);
 
-  // group titles by category
   const grouped = titles.reduce((acc: Record<string, TTitle[]>, title) => {
     if (!acc[title.category]) {
       acc[title.category] = [];
@@ -111,10 +108,10 @@ export function ComboboxWithGroupsAndSeparator({
     acc[title.category].push(title);
     return acc;
   }, {});
-  
+
   return (
-    <Combobox items={titles} 
-              itemToStringLabel={(title: TTitle) => title.description} 
+    <Combobox items={titles}
+              itemToStringLabel={(title: TTitle) => title.description}
               onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>

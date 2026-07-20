@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model forms {
+  id               BigInt   @id @default(autoincrement())
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @default(now()) @db.Timestamptz(6)
+  category         String   @default("")
+  title            String   @default("")
+  description      String   @default("")
+  equipment_labels String[] @default([])
+  equipment_images String[] @default([])
+}
+
+model submissions {
+  id                  BigInt    @id @default(autoincrement())
+  created_at          DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime? @default(now()) @db.Timestamptz(6)
+  netid               String?
+  title               String?
+  category            String?
+  description         String?
+  equipment_images    String[]
+  equipment_labels    String[]
+  checkout_responses  String[]
+  due_date            DateTime? @db.Date
+  due_time            DateTime? @db.Timetz(6)
+  checkout_staff      String?
+  checkin_responses   String[]
+  checkin_staff       String?
+  parts_working       Boolean?
+  checkin_description String?
+  status              String
+}

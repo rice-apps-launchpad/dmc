@@ -1,13 +1,11 @@
 "use client"
 
-import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// collapsible component
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger, 
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Play, FileCheckIcon } from "lucide-react";
@@ -39,25 +37,23 @@ export type TSubmission = {
 
 
 export default function Page() {
-    // fetch submissions from supabase
-    const supabase = createClient();
     const [submissions, setSubmissions] = useState<TSubmission[]>([]);
     const [groupedByNetID, setGroupedByNetID] = useState<[string, TSubmission[]][]>([]);
     const [filteredGroupedByNetID, setFilteredGroupByNetID] = useState<[string, TSubmission[]][]>([]);
 
     useEffect(() => {
         const fetchSubmissions = async () => {
-            const { data, error } = await supabase.from("submissions").select("*");
-            if (error) {
-                console.error("Error fetching submissions:", error);
-            } else {
-                setSubmissions(data);
+            const res = await fetch('/api/submissions');
+            if (!res.ok) {
+                console.error("Error fetching submissions");
+                return;
             }
+            const data = await res.json();
+            setSubmissions(data);
         };
         fetchSubmissions();
     }, []);
 
-    // group submissions by netid - CHANGE LATER FOR OTHER GROUPS
     useEffect(() => {
         const unsortedGroupBy = submissions.reduce((acc: Record<string, TSubmission[]>, submission: TSubmission) => {
             const netid = submission.netid;
@@ -75,7 +71,6 @@ export default function Page() {
     }, [submissions])
 
     function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
-        // "Cast" to lowercase to ignore casing when searching
         setFilteredGroupByNetID(groupedByNetID.filter(entry => entry[0].toLowerCase().includes(e.target.value.toLowerCase())));
     }
 
@@ -102,7 +97,6 @@ export default function Page() {
             <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>} link='' placeholder="Search by NetID." searchHandler={handleSearch} />
             <div className="pl-[47px] pr-[47px] mt-[24px]">
                 <div className="space-y-4">
-                    { /* submissions header table */ }
                     <div className={`${rowLayout} rounded-xl bg-[#222d65] text-white h-[60px] mb-4 text-sm font-medium`}>
                         <span className="justify-self-start px-10"><strong>NetID/Form Title</strong></span>
                         <span><strong>Form ID</strong></span>
@@ -111,7 +105,6 @@ export default function Page() {
                         <span className="justify-self-start px-12"><strong>Status</strong></span>
                     </div>
 
-                    { /* actual submissions */ }
                     {filteredGroupedByNetID.map(([netid, submissions]) => (
                         <Collapsible key={netid}>
                             <CollapsibleTrigger className={`${rowLayout} w-full group bg-[#e7f0ff] rounded-xl hover:bg-blue-100`}>

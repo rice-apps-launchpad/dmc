@@ -1,6 +1,5 @@
 'use client'
-import { Suspense, use, useEffect, useState } from 'react'
-import { createClient } from "@/lib/supabase/client";
+import { Suspense, useEffect, useState } from 'react'
 import {useRouter} from "next/navigation"
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Checkbox } from "@/components/ui/checkbox"
@@ -8,15 +7,9 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 
 
 async function fetchFormData(id: number) {
-  const supabase = createClient();
-  const {data: formData} = await supabase.from("forms").select().eq("id", id).single()
-  return formData
-}
-
-async function getImageUrl(path: string) {
-  const supabase = createClient();
-  const { data } = await supabase.storage.from("equipment_images").getPublicUrl(path);
-  return data.publicUrl
+  const res = await fetch(`/api/forms/${id}`)
+  if (!res.ok) return null
+  return res.json()
 }
 
 import mockFormData from "@/lib/mock_form.json"
@@ -201,7 +194,6 @@ function SuspendedFormPage() {
   const { id } = useParams<{ id: string }>()
   const numericId = Number(id)
   const [form, setForm] = useState<TForm>({title: "", description: "", equipment_labels: [], equipment_images: [], category: ""});
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [netId, setNetId] = useState("");
   const [name, setName] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -215,27 +207,16 @@ function SuspendedFormPage() {
 
   const router = useRouter();
 
-
   useEffect(() => {
     async function getFormData() {
-      
       const data = await fetchFormData(numericId);
-      setForm(data);
-      setEquipmentStatuses(new Array(data.equipment_labels.length).fill(""));
+      if (data) {
+        setForm(data);
+        setEquipmentStatuses(new Array(data.equipment_labels.length).fill(""));
+      }
     }
     getFormData();
-  }, [setForm, fetchFormData, numericId])
-
-  useEffect(() => {
-    async function fetchImageUrls() {
-      const urls = await Promise.all(
-        form?.equipment_images?.map(async (image: string) => await getImageUrl(image)) ?? []
-      );
-
-      setImageUrls(urls);
-    }
-    fetchImageUrls();
-  }, [form?.equipment_images, setImageUrls, getImageUrl]) 
+  }, [numericId])
 
   async function handleSubmit(buttonElement: HTMLButtonElement) {
   setClicked(true);
@@ -250,27 +231,29 @@ function SuspendedFormPage() {
   }
   setMissingFields(false);
 
-  const supabase = createClient();
-  const { error } = await supabase.from("submissions").insert({
-    netid: netId,
-    due_date: dueDate,
-    due_time: dueTime,
-    checkout_staff: staffName,
-    checkout_responses: equipmentStatuses.map(s => s === "Present"),
-    title: form.title,
-    equipment_labels: form.equipment_labels,
-    equipment_images: form.equipment_images,
-    category: form.category,
-    description: form.description,
-    status: "Checked Out",
+  const res = await fetch('/api/submissions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      netid: netId,
+      due_date: dueDate,
+      due_time: dueTime,
+      checkout_staff: staffName,
+      checkout_responses: equipmentStatuses.map(s => s === "Present"),
+      title: form.title,
+      equipment_labels: form.equipment_labels,
+      equipment_images: form.equipment_images,
+      category: form.category,
+      description: form.description,
+      status: "Checked Out",
+    }),
   });
 
-  if (error) {
-    console.log("Error submitting form:", error);
+  if (!res.ok) {
+    console.log("Error submitting form:", await res.text());
     setInternalError(true);
     setSubmitted(false);
     buttonElement.disabled = false;
-
   } else {
     setSubmitted(true);
     setTimeout(() => router.push("/kiosk"), 2000);
@@ -287,7 +270,7 @@ function SuspendedFormPage() {
             <h1 className="font-bold text-[24px]">Equipment Details</h1>
             <div>
                 <EquipmentList
-                  image={imageUrls}
+                  image={form?.equipment_images ?? []}
                   label={form?.equipment_labels ?? []}
                   statuses={equipmentStatuses}
                   onStatusChange={(index, val) => setEquipmentStatuses(prev => {
@@ -298,7 +281,7 @@ function SuspendedFormPage() {
                 />
             </div>
             <h1 className=" mt-[65px] font-bold text-[24px] mb-[15px]">Other</h1>
-            
+
             <div style={styles.otherSection}>
               <div className="flex flex-row gap-[40px] text-[30px]">
                 <FormInput title={"Name"} type={"text"} placeholder={'Add your Name'} value={name} onChange={setName}/>
@@ -308,13 +291,13 @@ function SuspendedFormPage() {
             <h1 className=" mt-[20px] font-bold text-[24px] mb-[15px]">Staff</h1>
             <div style={styles.otherSection}>
               <div className="flex flex-row gap-[40px] text-[30px]">
-                
+
                 <FormInput title={"Due Date"} type={"date"} placeholder={'Calendar Picker'} value={dueDate} onChange={setDueDate}/>
                 <FormInput title={"Due Time"} type={"time"} placeholder={'Time Picker'} value={dueTime} onChange={setDueTime}/>
                 <FormInput title={"DMC Staff Member's Name"} type={"text"} placeholder={"Add DMC Member's Name"} value={staffName} onChange={setStaffName}/>
-                <div className="flex flex-col mt-[44px] h-[50px] justify-center"> 
+                <div className="flex flex-col mt-[44px] h-[50px] justify-center">
                     <FieldGroup className="mx-auto w-56">
-                        <Field orientation="horizontal" className="flex items-center gap-3"> {/* items-center helps align large text with checkbox */}
+                        <Field orientation="horizontal" className="flex items-center gap-3">
                             <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" className= "h-[30px] w-[30px]"/>
                             <FieldLabel htmlFor="terms-checkbox-bassic" className="text-[24px]">
                                 Scan Out
@@ -324,7 +307,7 @@ function SuspendedFormPage() {
                 </div>
               </div>
             </div>
-              
+
 
           </div>
         <hr className="h-[1px] w-full border-[0.5px] border-[#9f9f9f]"></hr>
