@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -8,17 +9,18 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { Play, FileCheckIcon } from "lucide-react";
+import { Play } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { TableRow } from "@/components/TableRow";
 
-const rowLayout = "grid grid-cols-5 items-center justify-items-center gap-x-6 px-6 py-3";
+const rowLayout = "grid grid-cols-6 items-center justify-items-center gap-x-6 px-6 py-3";
 
 export type TSubmission = {
     id: number;
     created_at: string;
     updated_at: string;
     netid: string;
+    name: string;
     title: string;
     category: string;
     description: string;
@@ -34,6 +36,34 @@ export type TSubmission = {
     checkin_description: string;
     status: string;
 };
+
+/** Formats due_date as "MM/DD/YYYY". Built from the "YYYY-MM-DD" string
+ *  directly — new Date() would parse it as UTC midnight and show the previous
+ *  day in US timezones. */
+function formatDueDate(s: TSubmission): string {
+    if (!s.due_date) return "";
+    const [year, month, day] = s.due_date.split("-");
+    return `${month}/${day}/${year}`;
+}
+
+/** Formats due_time as "HH:MM AM/PM" in the viewer's timezone. */
+function formatDueTime(s: TSubmission): string {
+    if (!s.due_time) return "";
+    return new Date(s.due_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+/** Row order within a NetID group: checked-out submissions before checked-in,
+ *  then newest checkout date first, then soonest due date, then soonest due
+ *  time. due_date ("YYYY-MM-DD") and due_time (ISO, same 1970 anchor) both
+ *  sort correctly as strings. */
+function compareSubmissions(a: TSubmission, b: TSubmission): number {
+    return (
+        Number(a.status === "Checked In") - Number(b.status === "Checked In") ||
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
+        String(a.due_date ?? "").localeCompare(String(b.due_date ?? "")) ||
+        String(a.due_time ?? "").localeCompare(String(b.due_time ?? ""))
+    );
+}
 
 
 export default function Page() {
@@ -57,14 +87,18 @@ export default function Page() {
     useEffect(() => {
         const unsortedGroupBy = submissions.reduce((acc: Record<string, TSubmission[]>, submission: TSubmission) => {
             const netid = submission.netid;
-            if (!acc[netid]) {
-                acc[netid] = [];
+            const name = submission.name;
+            const key = netid + " - " + name;
+            if (!acc[key]) {
+                acc[key] = [];
             }
-            acc[netid].push(submission);
+            acc[key].push(submission);
             return acc;
         }, {});
 
-        const sortedGroupBy = Object.entries(unsortedGroupBy).toSorted((a, b) => a[0].localeCompare(b[0]));
+        const sortedGroupBy = Object.entries(unsortedGroupBy)
+            .map(([key, group]): [string, TSubmission[]] => [key, group.toSorted(compareSubmissions)])
+            .toSorted((a, b) => a[0].localeCompare(b[0]));
 
         setGroupedByNetID(sortedGroupBy);
         setFilteredGroupByNetID(sortedGroupBy);
@@ -76,62 +110,54 @@ export default function Page() {
 
     const router = useRouter();
 
-    const checkedOut = (id: number): React.ReactNode => (
-        <span className="flex items-center gap-2 text-purple-600 font-semibold">
-            Checked Out
-          <Button
-                variant="ghost"
-                size="icon"
-                title="Check In"
-                className="h-6 w-6 text-purple-600 hover:!text-purple-600"
-                onClick={() => router.push(`/admin/submissions/${id}/check-in`)}
-            >
-                <FileCheckIcon className="h-4 w-4" />
-            </Button>
-        </span>
-    );
-
-
     return (
         <div className='mt-[40px]'>
-            <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>} link='' placeholder="Search by NetID." searchHandler={handleSearch} />
+            <SearchBar title='Submissions' buttonText={<>Group by: <strong><u>NetID</u></strong></>} link='' placeholder="Search by NetID or Name." searchHandler={handleSearch} />
             <div className="pl-[47px] pr-[47px] mt-[24px]">
                 <div className="space-y-4">
                     <div className={`${rowLayout} rounded-xl bg-[#222d65] text-white h-[60px] mb-4 text-sm font-medium`}>
                         <span className="justify-self-start px-10"><strong>NetID/Form Title</strong></span>
-                        <span><strong>Form ID</strong></span>
-                        <span><strong>Created At</strong></span>
-                        <span><strong>Updated At</strong></span>
-                        <span className="justify-self-start px-12"><strong>Status</strong></span>
+                        <span><strong>Checkout Date</strong></span>
+                        <span><strong>Due Date</strong></span>
+                        <span><strong>Due Time</strong></span>
+                        <span><strong>Status</strong></span>
+                        <span></span>
                     </div>
 
-                    {filteredGroupedByNetID.map(([netid, submissions]) => (
-                        <Collapsible key={netid}>
+                    {filteredGroupedByNetID.map(([key, submissions]) => (
+                        <Collapsible key={key}>
                             <CollapsibleTrigger className={`${rowLayout} w-full group bg-[#e7f0ff] rounded-xl hover:bg-blue-100`}>
                                 <div className="flex items-center justify-self-start px-5 gap-2 font-semibold text-[#222d65]">
                                     <Play className="h-3 w-3 fill-[#222d65] rotate-90 group-data-[state=open]:-rotate-90 transition-none"/>
-                                    {netid}
+                                    {key}
                                 </div>
                             </CollapsibleTrigger>
 
                             <CollapsibleContent className="pt-2 space-y-2">
                                 {(submissions as TSubmission[]).map((s, i) => (
                                 <TableRow key={i}>
-                                    <div className={`grid grid-cols-5 items-center justify-items-center gap-x-6 h-full`}>
+                                    {/* content-center keeps the row track centered when the
+                                        buttons make it taller than TableRow's fixed height */}
+                                    <div className={`grid grid-cols-6 items-center content-center justify-items-center gap-x-6 h-full`}>
                                         <span className="justify-self-start px-10 whitespace-nowrap">{s.title}</span>
-                                        <span>{s.id}</span>
                                         <span>{new Date(s.created_at).toLocaleDateString()}</span>
-                                        <span>{new Date(s.updated_at).toLocaleDateString()}</span>
+                                        <span>{formatDueDate(s)}</span>
+                                        <span className="whitespace-nowrap">{formatDueTime(s)}</span>
                                         <span
                                             className={
-                                                "justify-self-start px-12" +
                                                 (s.status === "Checked In"
                                                 ? " text-green-600 font-semibold"
                                                 : " text-purple-600 whitespace-nowrap font-semibold")
                                             }
                                         >
-                                            {s.status === "Checked In" ? s.status: checkedOut(s.id)}
+                                            {s.status}
                                         </span>
+                                        <div className='flex flex-row gap-[15px]'>
+                                            {s.status === "Checked Out" && <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' onClick={() => router.push(`/admin/submissions/${s.id}/check-in`)}>Check In</Button>}
+                                            <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' asChild>
+                                                <Link href={`/admin/submissions/${s.id}`}>View</Link>
+                                            </Button>
+                                        </div>
                                     </div>
                                 </TableRow>
                                 ))}

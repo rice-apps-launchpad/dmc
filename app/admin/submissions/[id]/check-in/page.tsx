@@ -2,14 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox"
 import { Suspense } from 'react'
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@/components/ui/combobox";
+import { AvailabilityStatus, EquipmentList } from "@/components/EquipmentList";
 import { useParams } from 'next/navigation';
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 
@@ -84,18 +77,7 @@ const styles = {
       borderRadius: "13.5px",
       fontSize: "36px",
       margin: "20px"
-    },
-    combobox: {
-      height: "64px",
-      backgroundColor: "#000000",
     }
-}
-
-type EquipmentProps = {
-    label: string[],
-    image: string[],
-    responses: string[],
-    onResponseChange: (index: number, value: string) => void;
 }
 
 type FormInputProps = {
@@ -103,12 +85,6 @@ type FormInputProps = {
     type: string,
     placeholder: string,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-type AvailabilityProps = {
-    framework: string[],
-    value: string,
-    onValueChange: (value: string) => void;
 }
 
 const AlertIndicatorSuccessDemo = () => {
@@ -127,31 +103,6 @@ const AlertIndicatorMissingDemo = () => {
   )
 }
 
-function AvailabilityStatus(props: AvailabilityProps) {
-    const handleValueChange = useCallback((val: string | null) => {
-        const newVal = val ?? '';
-        if (newVal !== props.value) {
-            props.onValueChange(newVal);
-        }
-    }, [props.value, props.onValueChange]);
-
-    return (
-        <Combobox value={props.value} onValueChange={handleValueChange} items={props.framework}>
-            <ComboboxInput placeholder="Not Selected" style={styles.combobox}/>
-            <ComboboxContent>
-                <ComboboxEmpty>No items found.</ComboboxEmpty>
-                <ComboboxList>
-                    {(item) => (
-                        <ComboboxItem key={item} value={item}>
-                            {item}
-                        </ComboboxItem>
-                    )}
-                </ComboboxList>
-            </ComboboxContent>
-        </Combobox>
-    );
-}
-
 function FormInput(props: FormInputProps) {
   return (
     <div className="flex flex-col">
@@ -159,23 +110,6 @@ function FormInput(props: FormInputProps) {
       <input style={styles.input} type={props.type} placeholder= {props.placeholder} onChange={props.onChange}></input>
     </div>
   );
-}
-
-function EquipmentList({label, image, responses, onResponseChange}: EquipmentProps){
-    return(
-        <div className="flex flex-column align-center gap-[100px] justify-start items-center flex-wrap">
-            {label.map((label, index) => (
-            <div key={index}>
-                <div className="flex items-center justify-center w-[30vh] h-[19vh] border-black border-[1px] rounded-[16px] mb-[10px] mt-[10px]">
-                <img className="h-[100%] " src={image[index]} alt={label} /> </div>
-                <p className="text-[24px] mb-[10px] mt-[5px]">{label}</p>
-                <div>
-                  {<AvailabilityStatus framework={["Present", "Not Present"]} value={responses[index]} onValueChange={(value) => onResponseChange(index, value)} />}
-                </div>
-            </div>
-        ))}
-        </div>
-    )
 }
 
 function CheckInContent() {
@@ -260,14 +194,14 @@ function CheckInContent() {
                     </div>
                 </div>
                 <div style={styles.middleSection}>
-                    <h1 className="font-bold text-[24px]">Equipment Details</h1>
+                    <h1 className="font-bold text-[24px] mb-[10px]">Equipment Details</h1>
                     <div>
-                        <EquipmentList image={imageUrls} label={form?.equipment_labels ?? []} responses={equipmentResponses} onResponseChange={handleEquipmentChange} />
+                        <EquipmentList image={imageUrls} label={form?.equipment_labels ?? []} statuses={equipmentResponses} onStatusChange={handleEquipmentChange} />
                     </div>
                     <div>
-                        <h1 className="mt-[30px] text-[24px] mb-[10px]">Were all parts returned in working order?</h1>
+                        <h1 className="mt-[65px] text-[24px] mb-[10px]">Were all parts returned in working order?</h1>
                         <div className="w-[40vh]">
-                            <AvailabilityStatus framework={["Yes", "No"]} value={partsWorking} onValueChange={setPartsWorking} />
+                            <AvailabilityStatus items={["Yes", "No"]} value={partsWorking} onChange={setPartsWorking} />
                         </div>
                     </div>
                     <h1 className="mt-[65px] font-bold text-[24px] mb-[15px]">Notes</h1>

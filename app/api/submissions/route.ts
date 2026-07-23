@@ -22,6 +22,7 @@ export async function POST(request: Request) {
   const submission = await prisma.submissions.create({
     data: {
       netid: body.netid,
+      name: body.name,
       title: body.title,
       category: body.category,
       description: body.description,
