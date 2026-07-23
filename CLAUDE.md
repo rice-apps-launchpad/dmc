@@ -32,7 +32,12 @@ Port 3000 is the app; Apache terminates TLS on 443 and reverse-proxies to it.
 - `app/kiosk/*` — patron-facing self-checkout kiosk flow.
 - `app/api/forms`, `app/api/forms/[id]` — CRUD for equipment "forms" (checkout templates).
 - `app/api/submissions`, `app/api/submissions/[id]` — checkout/check-in submission records.
-- `app/api/upload` — writes uploaded equipment images to `public/uploads/` (uuid filenames).
+- `app/api/upload` — writes uploaded equipment images to `public/uploads/` (uuid filenames),
+  returns an `/api/uploads/<filename>` URL (see gotcha below — do NOT change this back to a
+  bare `/uploads/...` static path).
+- `app/api/uploads/[filename]` — serves files from `public/uploads/` by reading them from disk
+  on every request. Exists because of the gotcha below; new uploads must go through this route,
+  not direct static `/public` serving.
 - `prisma/schema.prisma` — `forms` and `submissions` tables (Postgres via `@prisma/adapter-pg`).
 - `lib/prisma.ts` — Prisma client singleton.
 
@@ -54,6 +59,17 @@ dynamic data synchronously at the top (e.g. `useParams()`) must be wrapped in `<
 or `next build` fails with "Uncached data was accessed outside of `<Suspense>`". Existing
 precedent: `app/kiosk/forms/[id]/page.tsx` and `app/admin/submissions/[id]/check-in/page.tsx`
 both export a thin wrapper that renders the real content component inside `<Suspense>`.
+
+**Gotcha:** Next.js snapshots the `/public` directory listing when the server process starts
+(independent of `cacheComponents` — confirmed present with it both on and off). A file written
+to `public/uploads/` *after* the server started returns 404 through the normal static path until
+the next `pm2 restart`/rebuild — a real problem here since staff upload new equipment images
+while the app stays up for weeks. Fixed 2026-07-23 by serving uploads through
+`app/api/uploads/[filename]/route.ts` (plain dynamic route handler, reads from disk per-request)
+instead of relying on `/public` static serving. `POST /api/upload` returns `/api/uploads/...`
+paths now. Old `forms.equipment_images` rows with bare `/uploads/...` paths still work because
+those files were already known to the static-file snapshot as of the last restart — don't be
+surprised if they keep resolving; they're not proof the underlying bug is gone.
 
 ## Environment
 
