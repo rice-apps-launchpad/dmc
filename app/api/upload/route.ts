@@ -16,5 +16,5 @@ export async function POST(request: Request) {
   const uploadDir = join(process.cwd(), 'public', 'uploads')
   await writeFile(join(uploadDir, filename), buffer)
 
-  return NextResponse.json({ path: `/uploads/${filename}` }, { status: 201 })
+  return NextResponse.json({ path: `/api/uploads/${filename}` }, { status: 201 })
 }
