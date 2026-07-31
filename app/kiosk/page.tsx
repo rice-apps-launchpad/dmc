@@ -110,7 +110,7 @@ export function ComboboxWithGroupsAndSeparator({
 
   return (
     <Combobox items={titles}
-              itemToStringLabel={(title: TTitle) => title.description}
+              itemToStringLabel={(title: TTitle) => title.title}
               onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
@@ -122,7 +122,7 @@ export function ComboboxWithGroupsAndSeparator({
               <ComboboxCollection>
                 {(title: TTitle) => (
                   <ComboboxItem key={title.id} value={title}>
-                    {title.description}
+                    {title.title}
                   </ComboboxItem>
                 )}
               </ComboboxCollection>

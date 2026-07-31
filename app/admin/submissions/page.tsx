@@ -153,7 +153,7 @@ export default function Page() {
                                             {s.status}
                                         </span>
                                         <div className='flex flex-row gap-[15px]'>
-                                            {s.status === "Checked Out" && <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' onClick={() => router.push(`/admin/submissions/${s.id}/check-in`)}>Check In</Button>}
+                                            <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' onClick={() => router.push(`/admin/submissions/${s.id}/check-in${s.status === "Checked In" ? "" : "/edit"}`)}>Check In</Button>
                                             <Button variant='outline' className='!bg-[#E7F0FF] !border-[#222D65] !font-inter !font-[400] !text-[#222D65] !rounded-xl !px-[18px] !py-[5px]' asChild>
                                                 <Link href={`/admin/submissions/${s.id}`}>View</Link>
                                             </Button>

@@ -82,7 +82,7 @@ export default function Page() {
             <div className='flex flex-col !gap-[12px] mx-[47px]'>
                 <div className="grid grid-cols-[1fr_2fr_250px] items-center gap-4 rounded-xl bg-[#1f2a63] text-white px-[70px] py-5 text-sm font-medium">
                     <span><strong>Form Title</strong></span>
-                    <span><strong>Description</strong></span>
+                    <span><strong>Subtitle</strong></span>
                 </div>
                 <PageContent data={filteredData} onDelete={handleDelete} />
             </div>
