@@ -28,7 +28,8 @@ Port 3000 is the app; Apache terminates TLS on 443 and reverse-proxies to it.
 
 ## Architecture
 
-- `app/admin/*` — staff admin panel (forms CRUD, submissions/check-in). No auth guard currently.
+- `app/admin/*` — staff admin panel (forms CRUD, submissions/check-in), password-gated (see
+  Admin authentication below). `app/admin/login/page.tsx` is the only unguarded admin route.
 - `app/kiosk/*` — patron-facing self-checkout kiosk flow.
 - `app/api/forms`, `app/api/forms/[id]` — CRUD for equipment "forms" (checkout templates).
 - `app/api/submissions`, `app/api/submissions/[id]` — checkout/check-in submission records.
@@ -71,8 +72,26 @@ paths now. Old `forms.equipment_images` rows with bare `/uploads/...` paths stil
 those files were already known to the static-file snapshot as of the last restart — don't be
 surprised if they keep resolving; they're not proof the underlying bug is gone.
 
+### Admin authentication (added 2026-08-13)
+- `proxy.ts` (middleware) blocks `/admin/*` (except `/admin/login`) and most `/api/forms*` /
+  `/api/submissions*` / `/api/upload` calls unless a valid `dmc_admin_auth` cookie is present.
+  Kiosk-required calls stay public: `GET /api/forms`, `GET /api/forms/:id`,
+  `POST /api/submissions`.
+- `lib/adminAuth.ts` derives the cookie value as an HMAC of `ADMIN_PASSWORD` (env var) — no
+  session store. **Fails closed:** if `ADMIN_PASSWORD` is unset, login is impossible and every
+  admin route 401s/redirects forever. `.env` must have `ADMIN_PASSWORD` set for the admin panel
+  to be reachable at all — check this first if "the admin panel won't load" after a fresh deploy.
+- `app/admin/login/page.tsx` navigates with `window.location.href` after a successful login, not
+  `router.push()`. The navbar prefetches `/admin/forms` and `/admin/submissions` on every admin
+  page — including the logged-out login page itself — so by the time login succeeds, the client
+  Router Cache already holds a cached "redirect to login" response for those destinations.
+  `router.push()` would replay that stale redirect instead of re-fetching with the new cookie,
+  bouncing the user right back to the login screen even though login actually succeeded. Only a
+  full navigation forces a fresh request that picks up the cookie.
+
 ## Environment
 
-- `.env` has `DATABASE_URL` only — don't print/cat this file (contains DB credentials).
+- `.env` has `DATABASE_URL` and `ADMIN_PASSWORD` — don't print/cat this file (contains
+  credentials).
 - No sudo access in this environment; can't edit nginx/httpd/systemd config directly, but the
   Apache vhost configs under `/etc/httpd/conf.d/` are world-readable.
