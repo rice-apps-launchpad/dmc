@@ -184,7 +184,15 @@ export function CheckoutForm({ form, onSubmit, initialValues }: {
   // Prefill from an existing submission once it arrives (declared after the
   // effects above so these values win over the resets/defaults they apply).
   useEffect(() => {
-    if (!initialValues) return;
+    if (!initialValues) {
+      setSubmitted(false);
+      setNetId("");
+      setName("");
+      setStaffName("");
+      setScannedOut(false);
+      setClicked(false);
+      return;
+    }
     setNetId(initialValues.netId);
     setName(initialValues.name);
     setDueDate(initialValues.dueDate);
@@ -216,7 +224,10 @@ export function CheckoutForm({ form, onSubmit, initialValues }: {
     setInternalError(true);
     setSubmitted(false);
     buttonElement.disabled = false;
-  }}
+  } finally {
+    buttonElement.disabled = false;
+  }
+  }
   return (
     <div style={styles.page}>
         <div style={styles.formTitle}>

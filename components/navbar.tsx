@@ -33,9 +33,13 @@ export default function Navbar({ page }: NavbarProps){
                             </Link>
                         </>
                     )}
-                    <Link href = {"/"}>
-                        <Button style={{backgroundColor: "#B20000"}}>Logout</Button>
-                    </Link>
+                    {page === "admin" && (
+                        // Clears the admin auth cookie; the route handler
+                        // redirects to the login page.
+                        <form action="/api/admin/logout" method="POST">
+                            <Button type="submit" style={{backgroundColor: "#B20000"}}>Logout</Button>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>

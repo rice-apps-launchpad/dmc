@@ -17,6 +17,32 @@ export async function GET() {
   return NextResponse.json(submissions.map(s => serialize(s as unknown as Record<string, unknown>)))
 }
 
+// Bulk delete: removes every submission created on or before `before`
+// (a "YYYY-MM-DD" date). Skips still-checked-out submissions unless
+// `includeCheckedOut` is set. Admin-only (enforced in proxy.ts).
+export async function DELETE(request: Request) {
+  const body = await request.json().catch(() => null)
+  const before = body?.before
+  if (typeof before !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(before)) {
+    return NextResponse.json({ error: 'Expected "before" as YYYY-MM-DD' }, { status: 400 })
+  }
+
+  if (Number.isNaN(new Date(`${before}T00:00:00`).getTime())) {
+    return NextResponse.json({ error: 'Invalid date' }, { status: 400 })
+  }
+
+  // "On or before" the calendar date = strictly before the next midnight in
+  // the library's timezone. AT TIME ZONE pins the day boundary to Chicago
+  // wall-clock time no matter what timezone the server or DB session uses.
+  // The comparison happens entirely in SQL because the Prisma pg driver
+  // adapter serializes JS Date params as naive UTC strings, which Postgres
+  // reads in the session timezone — shifting a Date cutoff by the UTC offset.
+  const count = body?.includeCheckedOut
+    ? await prisma.$executeRaw`DELETE FROM submissions WHERE created_at < ((${before}::date + 1)::timestamp AT TIME ZONE 'America/Chicago')`
+    : await prisma.$executeRaw`DELETE FROM submissions WHERE created_at < ((${before}::date + 1)::timestamp AT TIME ZONE 'America/Chicago') AND status = 'Checked In'`
+  return NextResponse.json({ count })
+}
+
 export async function POST(request: Request) {
   const body = await request.json()
   const submission = await prisma.submissions.create({

@@ -17,6 +17,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   return NextResponse.json(serialize(submission as unknown as Record<string, unknown>))
 }
 
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  await prisma.submissions.delete({ where: { id: BigInt(id) } })
+  return NextResponse.json({ success: true })
+}
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const body = await request.json()

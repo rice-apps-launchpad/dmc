@@ -15,6 +15,8 @@ type SearchBarProps = {
     link: string,
     placeholder: string,
     searchHandler: React.ChangeEventHandler<HTMLInputElement>,
+    /** Optional extra controls rendered after the button, on the same row. */
+    children?: React.ReactNode,
 }
 
 export function SearchBar(props : SearchBarProps) {
@@ -31,6 +33,7 @@ export function SearchBar(props : SearchBarProps) {
                 <Button className='w-[196px] !bg-[#7B7B7B] h-[100%] text-white !rounded-full !font-inter' asChild>
                     <Link href={props.link}>{props.buttonText}</Link>
                 </Button>
+                {props.children}
             </div>
         </div>
     );

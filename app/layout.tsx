@@ -25,8 +25,10 @@ export default function RootLayout({
       <body className={`${dmSans.className} antialiased h-[100svh] w-[100svw] flex flex-col`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          // The UI is designed light-only (colors are hard-coded throughout),
+          // so never follow the OS dark mode.
+          forcedTheme="light"
+          defaultTheme="light"
           disableTransitionOnChange
         >
           {children}

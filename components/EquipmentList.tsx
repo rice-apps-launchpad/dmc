@@ -63,7 +63,7 @@ export function EquipmentList({label, image, statuses, onStatusChange}: Equipmen
             {label.map((label, index) => (
             <div key={index} className="w-[30vh] flex flex-col">
                 <div className="flex items-center justify-center h-[19vh] border-black border-[1px] rounded-[16px] mb-[10px]">
-                  <img className="object-contain" src={image[index]} alt={label} />
+                  <img className="object-contain" style={{maxHeight: "90%"}} src={image[index]} alt={label} />
                 </div>
                 <p className="text-[24px] mb-[10px] mt-[5px] text-center">{label}</p>
                 <div className="mt-auto">
