@@ -1,13 +1,12 @@
 'use client'
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [password, setPassword] = useState("");
@@ -30,10 +29,14 @@ function LoginContent() {
       return;
     }
 
-    // Only follow same-site admin paths so the login page can't be used as an
-    // open redirect.
+    // Full navigation (not router.push) so the browser re-fetches with the
+    // fresh cookie — the Router Cache may hold pre-login (redirect-to-login)
+    // responses for admin routes prefetched by the navbar while logged out,
+    // and a client-side push can replay that stale redirect. Only follow
+    // same-site admin paths so the login page can't be used as an open
+    // redirect.
     const next = searchParams.get("next");
-    router.push(next?.startsWith("/admin") ? next : "/admin/submissions");
+    window.location.href = next?.startsWith("/admin") ? next : "/admin/submissions";
   }
 
   return (
