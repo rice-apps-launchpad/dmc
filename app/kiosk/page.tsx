@@ -108,17 +108,24 @@ export function ComboboxWithGroupsAndSeparator({
     return acc;
   }, {});
 
+  const groupedItems = Object.entries(grouped)
+    .toSorted(([a], [b]) => a.localeCompare(b))
+    .map(([category, items]) => ({
+      value: category,
+      items: items.toSorted((a, b) => a.title.localeCompare(b.title)),
+    }));
+
   return (
-    <Combobox items={titles}
+    <Combobox items={groupedItems}
               itemToStringLabel={(title: TTitle) => title.title}
               onValueChange={(title) => setSelectedTitle(title?.id ?? null)}>
       <ComboboxInput placeholder="Select the equipment you're looking for." style={styles.combobox}/>
       <ComboboxContent>
         <ComboboxEmpty>No equipment found.</ComboboxEmpty>
         <ComboboxList>
-          {Object.entries(grouped).map(([category, items]) => (
-            <ComboboxGroup key={category} items={items}>
-              <ComboboxLabel>{category}</ComboboxLabel>
+          {(group: { value: string; items: TTitle[] }) => (
+            <ComboboxGroup key={group.value} items={group.items}>
+              <ComboboxLabel>{group.value}</ComboboxLabel>
               <ComboboxCollection>
                 {(title: TTitle) => (
                   <ComboboxItem key={title.id} value={title}>
@@ -127,7 +134,7 @@ export function ComboboxWithGroupsAndSeparator({
                 )}
               </ComboboxCollection>
             </ComboboxGroup>
-          ))}
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
