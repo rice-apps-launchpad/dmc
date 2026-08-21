@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import {CirclePlus} from 'lucide-react';
 import {X} from 'lucide-react';
 import { Alert, AlertTitle } from '@/components/ui/alert';
@@ -93,6 +93,16 @@ export function FormEditor({ heading, initial, onSave }: {
   const [missingFields, setMissingFields] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!initial) {
+      setTitle('');
+      setDescription('');
+      setCategory('');
+      setMissingFields(false);
+      setEquipList([]);
+    }
+  },[]);
 
   const openFilePicker = () => {
     fileInputRef.current?.click();
