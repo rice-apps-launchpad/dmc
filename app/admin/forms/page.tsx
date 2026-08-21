@@ -79,7 +79,7 @@ export default function Page() {
             <div className="mt-[37px]">
                 <SearchBar title='Forms' buttonText={<>+ Add a new form</>} link='/admin/forms/new' placeholder="Search by title." searchHandler={handleSearch} />
             </div>
-            <div className='flex flex-col !gap-[12px] mx-[47px]'>
+            <div className='flex flex-col !gap-[12px] mx-[47px] mb-[37px]'>
                 <div className="grid grid-cols-[1fr_2fr_250px] items-center gap-4 rounded-xl bg-[#1f2a63] text-white px-[70px] py-5 text-sm font-medium">
                     <span><strong>Form Title</strong></span>
                     <span><strong>Subtitle</strong></span>
